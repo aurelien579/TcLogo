@@ -15,6 +15,15 @@
 				"width=\"200\" height=\"200\">\n" \
 				"<title>Example LOGO</title>\n" \
 				"<desc>Du LOGO</desc>\n"
+              
+struct state {
+    double          x;          /* Current x */
+    double          y;          /* Current y */
+    double          angle;      /* Current angle in radians */
+    char            color[10];  /* Current color */
+    struct canvas * current_canvas;
+    struct canvas * canvas;
+};
 
 static void execute(struct state *state, const struct node* p);
 

@@ -1,21 +1,25 @@
 #ifndef NODE_H_
 #define NODE_H_
 
-#define NODE_FORWARD        1
-#define NODE_LEFT           2
-#define NODE_RIGHT          3
-#define NODE_REPEAT         4
-#define NODE_COLOR          5
-#define NODE_CREATE_CANVAS  6
-#define NODE_SET_CANVAS     7
-#define NODE_DRAW_CANVAS    8
-
 #define STR_LENGTH  10
+
+#include "svg.h"
 
 struct state;
 
+enum node_type {
+    NODE_FORWARD,
+    NODE_LEFT,
+    NODE_RIGHT,
+    NODE_REPEAT,
+    NODE_COLOR,
+    NODE_CREATE_CANVAS,
+    NODE_SET_CANVAS,
+    NODE_DRAW_CANVAS
+};
+
 struct node {
-	int            type;
+	enum node_type type;
 	int            int_value;
 	char           str_value[STR_LENGTH];
 	struct node *  subnode;
@@ -23,9 +27,7 @@ struct node {
     void (*execute) (struct state*, const struct node*);
 };
 
-struct node *node_new(int type, int int_value, char *str_value, struct node *subnode,
-    void (*execute) (struct state*, const struct node*)
-);
+struct node *node_new(enum node_type type, int int_value, char *str_value, struct node *subnode);
 void node_free(struct node *p);
 void node_append(struct node *node, struct node *new);
 void node_print(struct node *p);

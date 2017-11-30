@@ -48,21 +48,21 @@ PROG: INST {
 }
 
 INST: FORWARD NUMBER {
-	$$ = node_new(NODE_FORWARD, $2, NULL, NULL, execute_forward);
+	$$ = node_new(NODE_FORWARD, $2, NULL, NULL);
 } | LEFT NUMBER {
-	$$ = node_new(NODE_LEFT, $2, NULL, NULL, execute_left);
+	$$ = node_new(NODE_LEFT, $2, NULL, NULL);
 } | RIGHT NUMBER {
-	$$ = node_new(NODE_RIGHT, $2, NULL, NULL, execute_right);
+	$$ = node_new(NODE_RIGHT, $2, NULL, NULL);
 } | REPEAT NUMBER '[' PROG ']' {
-	$$ = node_new(NODE_REPEAT, $2, NULL, $4, execute_repeat);
+	$$ = node_new(NODE_REPEAT, $2, NULL, $4);
 } | COLOR STR_DELEMITER STR STR_DELEMITER {
-	$$ = node_new(NODE_COLOR, 0, $3, NULL, execute_color);
+	$$ = node_new(NODE_COLOR, 0, $3, NULL);
 } | CREATE_CANVAS STR {
-    $$ = node_new(NODE_CREATE_CANVAS, 0, $2, NULL, NULL);
+    $$ = node_new(NODE_CREATE_CANVAS, 0, $2, NULL);
 } | SET_CANVAS STR {
-    $$ = node_new(NODE_SET_CANVAS, 0, $2, NULL, NULL);
+    $$ = node_new(NODE_SET_CANVAS, 0, $2, NULL);
 } | DRAW_CANVAS STR {
-    $$ = node_new(NODE_DRAW_CANVAS, 0, $2, NULL, NULL);
+    $$ = node_new(NODE_DRAW_CANVAS, 0, $2, NULL);
 }
 
 %%

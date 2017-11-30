@@ -4,9 +4,21 @@
 #include <stdlib.h>
 #include <string.h>
 
+struct function {
+    enum node_type node_type;
+    void (*f) (struct state*, const struct node*);
+};
+
+static struct function functions[] = {
+    { NODE_FORWARD, execute_forward },
+    { NODE_LEFT, execute_left },
+    { NODE_RIGHT, execute_right },
+    { NODE_COLOR, execute_color },
+    { NODE_REPEAT, execute_repeat },
+};
+
 struct node *
-node_new(int type, int int_value, char *str_value, struct node *subnode,
-         void (*execute) (struct state*, const struct node*))
+node_new(enum node_type type, int int_value, char *str_value, struct node *subnode)
 {
 	struct node *node = cast_malloc(struct node);
 
@@ -17,7 +29,12 @@ node_new(int type, int int_value, char *str_value, struct node *subnode,
     
 	node->subnode = subnode;
 	node->next = NULL;
-    node->execute = execute;
+    
+    for (int i = 0; i < 5; i++) {
+        if (functions[i].node_type == type) {
+            node->execute = functions[i].f;
+        }
+    }
 
 	return node;
 }

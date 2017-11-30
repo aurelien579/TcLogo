@@ -1,16 +1,8 @@
 #ifndef SVG_H
 #define SVG_H
 
-#include "node.h"
-
-struct state {
-    double          x;          /* Current x */
-    double          y;          /* Current y */
-    double          angle;      /* Current angle in radians */
-    char            color[10];  /* Current color */
-    struct canvas * current_canvas;
-    struct canvas * canvas;
-};
+struct state;
+struct node;
 
 void svg(const struct node *in, const char *out);
 
