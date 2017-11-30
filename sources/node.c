@@ -17,10 +17,13 @@ static struct function functions[] = {
     { NODE_REPEAT, execute_repeat },
 };
 
+static int functions_count = sizeof(functions) / sizeof(struct function);
+
 struct node *
 node_new(enum node_type type, int int_value, char *str_value, struct node *subnode)
 {
-	struct node *node = cast_malloc(struct node);
+
+    struct node *node = cast_malloc(struct node);
 
 	node->type = type;
 	node->int_value = int_value;
@@ -30,7 +33,7 @@ node_new(enum node_type type, int int_value, char *str_value, struct node *subno
 	node->subnode = subnode;
 	node->next = NULL;
     
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < functions_count; i++) {
         if (functions[i].node_type == type) {
             node->execute = functions[i].f;
         }
