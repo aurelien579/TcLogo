@@ -5,7 +5,8 @@
 #include <string.h>
 
 struct node *
-node_new(int type, int int_value, char *str_value, struct node *subnode)
+node_new(int type, int int_value, char *str_value, struct node *subnode,
+         void (*execute) (struct state*, const struct node*))
 {
 	struct node *node = cast_malloc(struct node);
 
@@ -16,6 +17,7 @@ node_new(int type, int int_value, char *str_value, struct node *subnode)
     
 	node->subnode = subnode;
 	node->next = NULL;
+    node->execute = execute;
 
 	return node;
 }

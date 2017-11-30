@@ -16,15 +16,6 @@
 				"<title>Example LOGO</title>\n" \
 				"<desc>Du LOGO</desc>\n"
 
-struct state {
-    double          x;          /* Current x */
-    double          y;          /* Current y */
-    double          angle;      /* Current angle in radians */
-    char            color[10];  /* Current color */
-    struct canvas * current_canvas;
-    struct canvas * canvas;
-};
-
 static void execute(struct state *state, const struct node* p);
 
 static void
@@ -39,13 +30,13 @@ execute_set_canvas(struct state *state, const char *str)
     
 }
 
-static void
-execute_forward(struct state *state, int val)
+void
+execute_forward(struct state *state, const struct node *node)
 {
 	double new_x, new_y;
 
-	new_x = state->x + val * cos(state->angle);
-	new_y = state->y + val * sin(state->angle);
+	new_x = state->x + node->int_value * cos(state->angle);
+	new_y = state->y + node->int_value * sin(state->angle);
     
     struct element *line = line_new(state->x, state->y, new_x, new_y, state->color);    
     canvas_add(state->canvas, line);
@@ -54,54 +45,37 @@ execute_forward(struct state *state, int val)
 	state->y = new_y;
 }
 
-static void
-execute_left(struct state *state, int val)
+void
+execute_left(struct state *state, const struct node *node)
 {
-	state->angle -= ((double)val) * (PI/180.0);
+	state->angle -= ((double)node->int_value) * (PI/180.0);
 }
 
-static void
-execute_right(struct state *state, int val)
+void
+execute_right(struct state *state, const struct node *node)
 {
-	state->angle += ((double)val) * (PI/180.0);
+	state->angle += ((double)node->int_value) * (PI/180.0);
 }
 
-static void
-execute_repeat(struct state *state, int n, const struct node *p)
+void
+execute_repeat(struct state *state, const struct node *node)
 {
-	for (int i = 0; i < n; i++) {
-		execute(state, p);
+	for (int i = 0; i < node->int_value; i++) {
+		execute(state, node->subnode);
 	}
 }
 
-static void
-execute_color(struct state *state, const char *str)
+void
+execute_color(struct state *state, const struct node *node)
 {
-	strncpy(state->color, str, 10);
+	strncpy(state->color, node->str_value, STR_LENGTH);
 }
 
 static void
 execute(struct state *state, const struct node* program)
 {
     while (program) {
-        switch (program->type) {
-            case NODE_FORWARD:
-                execute_forward(state, program->int_value);
-                break;
-            case NODE_RIGHT:
-                execute_right(state, program->int_value);
-                break;
-            case NODE_LEFT:
-                execute_left(state, program->int_value);
-                break;
-            case NODE_REPEAT:
-                execute_repeat(state, program->int_value, program->subnode);
-                break;
-            case NODE_COLOR:
-                execute_color(state, program->str_value);
-                break;
-        }
-        
+        program->execute(state, program);        
         program = program->next;
     }
 }
