@@ -1,0 +1,10 @@
+REPEAT 8 [
+    LEFT 45 
+    REPEAT 6 [
+        REPEAT 90 [
+            FORWARD 1
+            LEFT 2
+        ]
+        LEFT 90
+    ]
+]
