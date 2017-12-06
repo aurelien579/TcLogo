@@ -13,7 +13,12 @@ enum node_type {
     NODE_RIGHT,
     NODE_REPEAT,
     NODE_COLOR,
-    NODE_MOVE
+    NODE_MOVE,
+    NODE_SET_ANGLE,
+    NODE_CANVAS,
+    NODE_SET_CANVAS,
+    NODE_DRAW_CANVAS,
+    NODE_MOVE_TO
 };
 
 enum arg_type {

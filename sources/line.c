@@ -13,6 +13,22 @@ struct line_data {
     double y2;
 };
 
+static struct element *
+line_copy(struct element *src)
+{
+	struct element *dest = cast_malloc(struct element);
+	
+	*dest = *src;
+	
+	struct line_data *dest_data = cast_malloc(struct line_data);
+	struct line_data *src_data = (struct line_data*) src->private_data;
+	*dest_data = *src_data;
+	
+	dest->private_data = dest_data;
+	
+	return dest;
+}
+
 static void
 line_to_svg(const struct element *el, FILE *out)
 {
@@ -49,6 +65,7 @@ line_new(double x1, double y1, double x2, double y2, const char *color)
     el->bounds.height   = max(y1, y2) - el->bounds.y;
     el->to_svg          = line_to_svg;
     el->move            = line_move;
+    el->copy 			= line_copy;
     
     data->x1 = x1;
     data->x2 = x2;

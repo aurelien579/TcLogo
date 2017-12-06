@@ -6,7 +6,6 @@
 #include <float.h>
 #include <string.h>
 
-
 static double
 find_min_x(const struct list_head *elements)
 {    
@@ -44,7 +43,7 @@ find_max_x(const struct list_head *elements)
 {    
     const struct list_head *cur = elements;
     struct element *el;
-    double max_x = DBL_MAX;
+    double max_x = DBL_MIN;
     
      while (cur) {
         el = list_get(cur, struct element);
@@ -60,7 +59,7 @@ find_max_y(const struct list_head *elements)
 {    
     const struct list_head *cur = elements;
     struct element *el;
-    double max_y = DBL_MAX;
+    double max_y = DBL_MIN;
     
      while (cur) {
         el = list_get(cur, struct element);
@@ -73,7 +72,7 @@ find_max_y(const struct list_head *elements)
 
 void
 canvas_to_svg(const struct canvas *c, FILE *out)
-{
+{	
     struct list_head    *cur = c->elements;
     struct element      *el;
     
@@ -87,20 +86,26 @@ canvas_to_svg(const struct canvas *c, FILE *out)
 }
 
 void
-canvas_relocate_elements(struct canvas *c)
+canvas_move_all(struct canvas *c, double x, double y)
 {
-    struct list_head    *cur;
+	struct list_head    *cur;
     struct element      *el;
     
+	cur = c->elements;    
+    while (cur) {
+        el = list_get(cur, struct element);        
+        el->move(el, x, y);        
+        cur = cur->next;
+    }
+}
+
+void
+canvas_relocate_elements(struct canvas *c)
+{    
     double min_x = find_min_x(c->elements);
     double min_y = find_min_y(c->elements);
     
-    cur = c->elements;    
-    while (cur) {
-        el = list_get(cur, struct element);        
-        el->move(el, -min_x, -min_y);        
-        cur = cur->next;
-    }
+    canvas_move_all(c, -min_x, -min_y);
 }
 
 struct canvas *
@@ -118,6 +123,18 @@ void
 canvas_add(struct canvas *c, struct element *el)
 {
     list_add(&c->elements, el);
+}
+
+double
+canvas_max_x(struct canvas *c)
+{
+	return find_max_x(c->elements);
+}
+
+double
+canvas_max_y(struct canvas *c)
+{
+	return find_max_y(c->elements);
 }
 
 void

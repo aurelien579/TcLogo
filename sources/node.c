@@ -16,7 +16,12 @@ static struct function functions[] = {
     { NODE_RIGHT, execute_right },
     { NODE_COLOR, execute_color },
     { NODE_REPEAT, execute_repeat },
-    { NODE_MOVE, execute_move }
+    { NODE_MOVE, execute_move },
+    { NODE_SET_ANGLE, execute_set_angle },
+    { NODE_CANVAS, execute_canvas }, 
+    { NODE_SET_CANVAS, execute_set_canvas },
+    { NODE_DRAW_CANVAS, execute_draw_canvas },
+    { NODE_MOVE_TO, execute_move_to }
 };
 
 static int functions_count = sizeof(functions) / sizeof(struct function);
@@ -24,7 +29,6 @@ static int functions_count = sizeof(functions) / sizeof(struct function);
 struct node *
 node_new(enum node_type type, unsigned int arg_count)
 {
-
     struct node *node = cast_malloc(struct node);
 
 	node->type = type;

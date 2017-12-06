@@ -22,6 +22,7 @@ struct element {
     
     void              (*to_svg) (const struct element *, FILE *);
     void              (*move)   (struct element *, double, double);
+    struct element *  (*copy)   (struct element *);
     void               *private_data;
 };
 

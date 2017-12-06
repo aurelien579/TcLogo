@@ -1,4 +1,7 @@
-MOVE 50
+CANVAS flower
+
+SET_CANVAS flower
+
 REPEAT 8 [
     LEFT 45 
     REPEAT 6 [
@@ -9,3 +12,18 @@ REPEAT 8 [
         LEFT 90
     ]
 ]
+
+SET_CANVAS default
+SET_ANGLE 0
+MOVE_TO 0 0
+
+REPEAT 4 [
+REPEAT 5 [
+	DRAW_CANVAS flower
+	MOVE 120
+]
+	RIGHT 90
+]
+
+MOVE_TO 300 300
+DRAW_CANVAS flower
