@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 struct function {
     enum node_type node_type;
@@ -21,17 +22,14 @@ static struct function functions[] = {
 static int functions_count = sizeof(functions) / sizeof(struct function);
 
 struct node *
-node_new(enum node_type type, int int_value, char *str_value, struct node *subnode)
+node_new(enum node_type type, unsigned int arg_count)
 {
 
     struct node *node = cast_malloc(struct node);
 
 	node->type = type;
-	node->int_value = int_value;
-	if (str_value)
-		strncpy(node->str_value, str_value, sizeof(node->str_value)/sizeof(char));
-    
-	node->subnode = subnode;
+    node->args = (struct arg *) malloc(sizeof(struct arg) * arg_count);
+    node->arg_count = arg_count;
 	node->next = NULL;
     
     for (int i = 0; i < functions_count; i++) {
@@ -46,18 +44,23 @@ node_new(enum node_type type, int int_value, char *str_value, struct node *subno
 void
 node_free(struct node *node)
 {
-	struct node *next = node->next;
-	struct node *subnode = node->subnode;
-
+	if (node->next) {
+		node_free(node->next);
+	}
+	
+	struct arg arg;
+	
+	for (unsigned int i = 0; i < node->arg_count; i++) {
+		arg = node->args[i];
+		if (arg.type == ARG_NODE) {
+			node_free(arg.subnode);
+		} else if (arg.type == ARG_STR) {
+			free(arg.str);
+		}
+	}
+	
+	free(node->args);	
 	free(node);
-
-	if (next) {
-		node_free(next);
-	}
-
-	if (subnode) {
-		node_free(subnode);
-	}
 }
 
 void
@@ -72,6 +75,7 @@ node_append(struct node *node, struct node *new)
 	current->next = new;
 }
 
+#if 0
 void
 node_print(struct node *node)
 {
@@ -105,3 +109,51 @@ node_print(struct node *node)
 		cur = cur->next;
 	}
 }
+#endif
+
+int
+node_get_int(const struct node *node, unsigned int i)
+{
+	assert(i < node->arg_count);
+	return node->args[i].val;
+}
+
+char *
+node_get_str(const struct node *node, unsigned int i)
+{
+	assert(i < node->arg_count);
+	return node->args[i].str;
+}
+
+struct node *
+node_get_subnode(const struct node *node, unsigned int i)
+{
+	assert(i < node->arg_count);
+	return node->args[i].subnode;
+}
+
+void
+node_set_int(struct node *node, unsigned int i, int val)
+{
+	assert(i < node->arg_count);
+	node->args[i].type = ARG_INT;
+	node->args[i].val = val;	
+}
+
+void
+node_set_str(struct node *node, unsigned int i, const char *str)
+{
+	assert(i < node->arg_count);
+	node->args[i].type = ARG_STR;
+	node->args[i].str = (char *) malloc(sizeof(char) * (strlen(str) + 1));
+	strcpy(node->args[i].str, str);
+}
+
+void
+node_set_subnode(struct node *node, unsigned int i, struct node *subnode)
+{
+	assert(i < node->arg_count);
+	node->args[i].type = ARG_NODE;
+	node->args[i].subnode = subnode;
+}
+

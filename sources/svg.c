@@ -30,8 +30,8 @@ static void execute(struct state *state, const struct node* p);
 void
 execute_move(struct state *state, const struct node *node)
 {
-	state->x += node->int_value * cos(state->angle);
-	state->y += node->int_value * sin(state->angle);
+	state->x += node_get_int(node, 0) * cos(state->angle);
+	state->y += node_get_int(node, 0) * sin(state->angle);
 }
 
 void
@@ -39,8 +39,8 @@ execute_forward(struct state *state, const struct node *node)
 {
 	double new_x, new_y;
 
-	new_x = state->x + node->int_value * cos(state->angle);
-	new_y = state->y + node->int_value * sin(state->angle);
+	new_x = state->x + node_get_int(node, 0) * cos(state->angle);
+	new_y = state->y + node_get_int(node, 0) * sin(state->angle);
     
     struct element *line = line_new(state->x, state->y,
 								    new_x, new_y, state->color);
@@ -54,27 +54,27 @@ execute_forward(struct state *state, const struct node *node)
 void
 execute_left(struct state *state, const struct node *node)
 {
-	state->angle -= ((double)node->int_value) * (PI/180.0);
+	state->angle -= ((double)node_get_int(node, 0)) * (PI/180.0);
 }
 
 void
 execute_right(struct state *state, const struct node *node)
 {
-	state->angle += ((double)node->int_value) * (PI/180.0);
+	state->angle += ((double)node_get_int(node, 0)) * (PI/180.0);
 }
 
 void
 execute_repeat(struct state *state, const struct node *node)
 {
-	for (int i = 0; i < node->int_value; i++) {
-		execute(state, node->subnode);
+	for (int i = 0; i < node_get_int(node, 0); i++) {
+		execute(state, node_get_subnode(node, 1));
 	}
 }
 
 void
 execute_color(struct state *state, const struct node *node)
 {
-	strncpy(state->color, node->str_value, STR_LENGTH);
+	strncpy(state->color, node_get_str(node, 0), STR_LENGTH);
 }
 
 static void

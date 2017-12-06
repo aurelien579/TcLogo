@@ -48,17 +48,24 @@ PROG: INST {
 }
 
 INST: FORWARD NUMBER {
-	$$ = node_new(NODE_FORWARD, $2, NULL, NULL);
+	$$ = node_new(NODE_FORWARD, 1);
+	node_set_int($$, 0, $2);
 } | LEFT NUMBER {
-	$$ = node_new(NODE_LEFT, $2, NULL, NULL);
+	$$ = node_new(NODE_LEFT, 1);
+	node_set_int($$, 0, $2);
 } | RIGHT NUMBER {
-	$$ = node_new(NODE_RIGHT, $2, NULL, NULL);
+	$$ = node_new(NODE_RIGHT, 1);
+	node_set_int($$, 0, $2);
 } | REPEAT NUMBER '[' PROG ']' {
-	$$ = node_new(NODE_REPEAT, $2, NULL, $4);
+	$$ = node_new(NODE_REPEAT, 2);
+	node_set_int($$, 0, $2);
+	node_set_subnode($$, 1, $4);
 } | COLOR STR_DELEMITER STR STR_DELEMITER {
-	$$ = node_new(NODE_COLOR, 0, $3, NULL);
+	$$ = node_new(NODE_COLOR, 1);
+	node_set_str($$, 0, $3);
 } | MOVE NUMBER {
-	$$ = node_new(NODE_MOVE, $2, 0, NULL);
+	$$ = node_new(NODE_MOVE, 1);
+	node_set_int($$, 0, $2);
 }
 
 %%
