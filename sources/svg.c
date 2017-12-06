@@ -27,16 +27,11 @@ struct state {
 
 static void execute(struct state *state, const struct node* p);
 
-static void
-execute_create_canvas(struct state *state, const char *str)
+void
+execute_move(struct state *state, const struct node *node)
 {
-    
-}
-
-static void
-execute_set_canvas(struct state *state, const char *str)
-{
-    
+	state->x += node->int_value * cos(state->angle);
+	state->y += node->int_value * sin(state->angle);
 }
 
 void
@@ -47,8 +42,10 @@ execute_forward(struct state *state, const struct node *node)
 	new_x = state->x + node->int_value * cos(state->angle);
 	new_y = state->y + node->int_value * sin(state->angle);
     
-    struct element *line = line_new(state->x, state->y, new_x, new_y, state->color);    
-    canvas_add(state->canvas, line);
+    struct element *line = line_new(state->x, state->y,
+								    new_x, new_y, state->color);
+	  
+    canvas_add(state->current_canvas, line);
     
 	state->x = new_x;
 	state->y = new_y;

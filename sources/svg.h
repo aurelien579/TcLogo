@@ -11,6 +11,6 @@ void execute_repeat (struct state *state, const struct node *node);
 void execute_right  (struct state *state, const struct node *node);
 void execute_left   (struct state *state, const struct node *node);
 void execute_color  (struct state *state, const struct node *node);
-
+void execute_move	(struct state *state, const struct node *node);
 
 #endif

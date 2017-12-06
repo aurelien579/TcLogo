@@ -13,9 +13,7 @@ enum node_type {
     NODE_RIGHT,
     NODE_REPEAT,
     NODE_COLOR,
-    NODE_CREATE_CANVAS,
-    NODE_SET_CANVAS,
-    NODE_DRAW_CANVAS
+    NODE_MOVE
 };
 
 struct node {

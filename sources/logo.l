@@ -13,9 +13,7 @@
 "RIGHT" 		return RIGHT;
 "FORWARD"       return FORWARD;
 "COLOR"			return COLOR;
-"CREATE_CANVAS" return CREATE_CANVAS;
-"SET_CANVAS"    return SET_CANVAS;
-"DRAW_CANVAS"   return DRAW_CANVAS;
+"MOVE"			return MOVE;
 
 ([a-z]|[A-Z])+ {
 	strncpy(yylval.str_type, yytext, 10);

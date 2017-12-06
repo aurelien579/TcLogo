@@ -1,3 +1,4 @@
+MOVE 50
 REPEAT 8 [
     LEFT 45 
     REPEAT 6 [

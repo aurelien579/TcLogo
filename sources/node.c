@@ -15,6 +15,7 @@ static struct function functions[] = {
     { NODE_RIGHT, execute_right },
     { NODE_COLOR, execute_color },
     { NODE_REPEAT, execute_repeat },
+    { NODE_MOVE, execute_move }
 };
 
 static int functions_count = sizeof(functions) / sizeof(struct function);
