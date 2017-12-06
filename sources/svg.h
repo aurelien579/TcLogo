@@ -17,5 +17,5 @@ void execute_canvas(struct state* state, const struct node *node);
 void execute_set_canvas(struct state* state, const struct node *node);
 void execute_draw_canvas(struct state* state, const struct node *node);
 void execute_move_to(struct state* state, const struct node *node);
-
+void execute_rectangle(struct state *state, const struct node *node);
 #endif

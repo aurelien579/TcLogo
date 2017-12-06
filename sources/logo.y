@@ -22,7 +22,7 @@ static struct node *root;
 %}
 
 %token NUMBER FORWARD LEFT RIGHT REPEAT STR COLOR STR_DELEMITER
-%token MOVE SET_ANGLE CANVAS SET_CANVAS DRAW_CANVAS MOVE_TO
+%token MOVE SET_ANGLE CANVAS SET_CANVAS DRAW_CANVAS MOVE_TO RECTANGLE
 
 %union {
 	struct node * node_type;
@@ -80,6 +80,10 @@ INST: FORWARD NUMBER {
 	node_set_str($$, 0, $2);
 } | MOVE_TO NUMBER NUMBER {
 	$$ = node_new(NODE_MOVE_TO, 2);
+	node_set_int($$, 0, $2);
+	node_set_int($$, 1, $3);
+} | RECTANGLE NUMBER NUMBER {
+	$$ = node_new(NODE_RECTANGLE, 2);
 	node_set_int($$, 0, $2);
 	node_set_int($$, 1, $3);
 }

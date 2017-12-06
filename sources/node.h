@@ -18,7 +18,8 @@ enum node_type {
     NODE_CANVAS,
     NODE_SET_CANVAS,
     NODE_DRAW_CANVAS,
-    NODE_MOVE_TO
+    NODE_MOVE_TO,
+    NODE_RECTANGLE
 };
 
 enum arg_type {

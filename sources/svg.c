@@ -53,6 +53,15 @@ execute_canvas(struct state* state, const struct node *node)
 	list_add(&state->canvas, canvas_new(node_get_str(node, 0)));
 }
 
+void
+execute_rectangle(struct state *state, const struct node *node)
+{
+	struct element *rect = rect_new(state->x, state->y,
+									node_get_int(node, 0),
+									node_get_int(node, 1));
+	
+	canvas_add(state->current_canvas, rect);
+}
 
 void execute_move_to(struct state* state, const struct node *node)
 {

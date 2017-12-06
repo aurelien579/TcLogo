@@ -19,6 +19,7 @@
 "SET_CANVAS"	return SET_CANVAS;
 "DRAW_CANVAS"	return DRAW_CANVAS;
 "MOVE_TO"		return MOVE_TO;
+"RECTANGLE"		return RECTANGLE;
 
 
 ([a-z]|[A-Z])+ {

@@ -21,7 +21,8 @@ static struct function functions[] = {
     { NODE_CANVAS, execute_canvas }, 
     { NODE_SET_CANVAS, execute_set_canvas },
     { NODE_DRAW_CANVAS, execute_draw_canvas },
-    { NODE_MOVE_TO, execute_move_to }
+    { NODE_MOVE_TO, execute_move_to },
+    { NODE_RECTANGLE, execute_rectangle }
 };
 
 static int functions_count = sizeof(functions) / sizeof(struct function);
