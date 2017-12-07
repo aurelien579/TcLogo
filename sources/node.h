@@ -5,7 +5,7 @@
 
 #include "svg.h"
 
-struct state;
+struct logo;
 
 enum node_type {
     NODE_FORWARD,
@@ -15,35 +15,35 @@ enum node_type {
     NODE_COLOR,
     NODE_MOVE,
     NODE_SET_ANGLE,
-    NODE_CANVAS,
-    NODE_SET_CANVAS,
-    NODE_DRAW_CANVAS,
+    NODE_GROUP_BEGIN,
+    NODE_GROUP_END,
+    NODE_USE,
     NODE_MOVE_TO,
     NODE_RECTANGLE
 };
 
 enum arg_type {
-	ARG_INT,
-	ARG_STR,
-	ARG_NODE
+    ARG_INT,
+    ARG_STR,
+    ARG_NODE
 };
 
 struct arg {
-	enum arg_type type;
+    enum arg_type type;
 
-	union {
-		int 			val;
-		char *			str;
-		struct node *	subnode;
-	};
+    union {
+        int             val;
+        char *          str;
+        struct node *   subnode;
+    };
 };
 
 struct node {
-	enum node_type 		type;
-	struct arg *		args; 		/* Array of args */
-	unsigned int		arg_count;
-	struct node *  		next;
-    void (*execute) (struct state*, const struct node*);
+    enum node_type         type;
+    struct arg *           args; 		/* Array of args */
+    unsigned int           arg_count;
+    struct node *          next;
+    void (*execute) (struct logo*, const struct node*);
 };
 
 struct node *node_new(enum node_type type, unsigned int arg_count);

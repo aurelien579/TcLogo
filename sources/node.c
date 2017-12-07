@@ -7,7 +7,7 @@
 
 struct function {
     enum node_type node_type;
-    void (*f) (struct state*, const struct node*);
+    void (*f) (struct logo*, const struct node*);
 };
 
 static struct function functions[] = {
@@ -18,9 +18,9 @@ static struct function functions[] = {
     { NODE_REPEAT, execute_repeat },
     { NODE_MOVE, execute_move },
     { NODE_SET_ANGLE, execute_set_angle },
-    { NODE_CANVAS, execute_canvas }, 
-    { NODE_SET_CANVAS, execute_set_canvas },
-    { NODE_DRAW_CANVAS, execute_draw_canvas },
+    { NODE_GROUP_BEGIN, execute_group_begin }, 
+    { NODE_GROUP_END, execute_group_end },
+    { NODE_USE, execute_use },
     { NODE_MOVE_TO, execute_move_to },
     { NODE_RECTANGLE, execute_rectangle }
 };

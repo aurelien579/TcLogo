@@ -7,10 +7,11 @@
 #define LINE_SVG "<line x1=\"%f\" y1=\"%f\" x2=\"%f\" y2=\"%f\" stroke=\"%s\"/>\n"
 
 struct line_data {
-    double x1;
-    double x2;
-    double y1;
-    double y2;
+    char    color[STR_LENGTH];
+    double  x1;
+    double  x2;
+    double  y1;
+    double  y2;
 };
 
 static struct element *
@@ -35,7 +36,7 @@ line_to_svg(const struct element *el, FILE *out)
     struct line_data *data = (struct line_data *) el->private_data;
     
     fprintf(out, LINE_SVG,
-            data->x1, data->y1, data->x2, data->y2, el->color);
+            data->x1, data->y1, data->x2, data->y2, data->color);
 }
 
 static void
@@ -47,32 +48,25 @@ line_move(struct element *el, double x, double y)
     data->y1 += y;
     data->y2 += y;
     
-    el->bounds.x += x;
-    el->bounds.y += y;    
+    el->x += x;
+    el->y += y;    
 }
+
 
 struct element *
 line_new(double x1, double y1, double x2, double y2, const char *color)
 {
-    struct element      *el     = cast_malloc(struct element);
-    struct line_data    *data   = cast_malloc(struct line_data);
-    
-    strncpy(el->color, color, STR_LENGTH);
-    
-    el->bounds.x        = min(x1, x2);
-    el->bounds.y        = min(y1, y2);
-    el->bounds.width    = max(x1, x2) - el->bounds.x;
-    el->bounds.height   = max(y1, y2) - el->bounds.y;
-    el->to_svg          = line_to_svg;
-    el->move            = line_move;
-    el->copy 			= line_copy;
-    
+    struct line_data *data = cast_malloc(struct line_data);    
+    strncpy(data->color, color, STR_LENGTH);
     data->x1 = x1;
     data->x2 = x2;
     data->y1 = y1;
     data->y2 = y2;
     
-    el->private_data    = data;
-    
-    return el;
+    double x = min(x1, x2);
+    double y = min(y1, y2);
+    double w = max(x1, x2) - x;
+    double h = max(y1, y2) - y;
+      
+    return element_new(x, y, w, h, line_to_svg, line_move, line_copy, data);
 }

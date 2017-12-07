@@ -12,7 +12,7 @@ find_min_x(const struct list_head *elements)
     double min_x = DBL_MIN;
     
     for_each(struct element, el, elements, {
-        min_x = min(min_x, el->bounds.x);
+        min_x = min(min_x, el->x);
     });
     
     return min_x;
@@ -24,7 +24,7 @@ find_min_y(const struct list_head *elements)
     double min_y = DBL_MIN;
     
     for_each(struct element, el, elements, {
-        min_y = min(min_y, el->bounds.y);
+        min_y = min(min_y, el->y);
     });
     
     return min_y;
@@ -36,7 +36,7 @@ find_max_x(const struct list_head *elements)
     double max_x = DBL_MIN;
     
     for_each(struct element, el, elements, {
-        max_x = max(max_x, el->bounds.x);
+        max_x = max(max_x, el->x + el->width);
     });
     
     return max_x;
@@ -48,7 +48,7 @@ find_max_y(const struct list_head *elements)
     double max_y = DBL_MIN;
     
     for_each(struct element, el, elements, {
-        max_y = max(max_y, el->bounds.y);
+        max_y = max(max_y, el->y + el->height);
     });
     
     return max_y;
@@ -99,13 +99,13 @@ canvas_add(struct canvas *c, struct element *el)
 double
 canvas_max_x(struct canvas *c)
 {
-	return find_max_x(c->elements);
+    return find_max_x(c->elements);
 }
 
 double
 canvas_max_y(struct canvas *c)
 {
-	return find_max_y(c->elements);
+    return find_max_y(c->elements);
 }
 
 void

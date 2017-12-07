@@ -1,6 +1,4 @@
-CANVAS flower
-
-SET_CANVAS flower
+GROUP_BEGIN flower
 
 REPEAT 8 [
     LEFT 45 
@@ -13,17 +11,13 @@ REPEAT 8 [
     ]
 ]
 
-SET_CANVAS default
-SET_ANGLE 0
-MOVE_TO 0 0
+GROUP_END
 
 REPEAT 4 [
-REPEAT 5 [
-	DRAW_CANVAS flower
-	MOVE 120
-]
+    REPEAT 5 [
+	    USE flower
+	    MOVE 120
+    ]
 	RIGHT 90
 ]
 
-MOVE_TO 300 300
-DRAW_CANVAS flower

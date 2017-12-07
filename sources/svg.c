@@ -17,22 +17,30 @@
                 "width=\"%d\" height=\"%d\">\n" \
                 "<title>Example LOGO</title>\n" \
                 "<desc>Du LOGO</desc>\n"
-            
-struct state {
-    double              x;          /* Current x */
-    double              y;          /* Current y */
-    double              angle;      /* Current angle in radians */
-    char                color[10];  /* Current color */
-    struct canvas *     current_canvas;
-    struct list_head *  canvas;
+
+struct logo {
+    double              saved_x;
+    double              saved_y;
+    double              saved_angle;
+    double              x;                  /* Current x */
+    double              y;                  /* Current y */
+    double              angle;              /* Current angle in radians */
+    char                color[10];          /* Current color */
+    struct canvas *     current_group;
+    struct list_head *  groups;
+    struct canvas *     root;
 };
 
-static void execute(struct state *state, const struct node* p);
+
+
+static void execute(struct logo *logo, const struct node* p);
+
+
 
 static struct canvas *
-find_canvas(const struct state *state, const char *name)
+find_group(const struct logo *logo, const char *name)
 {
-    for_each(struct canvas, canvas, state->canvas, {
+    for_each(struct canvas, canvas, logo->groups, {
         if (strcmp(canvas->name, name) == 0) {
             return canvas;
         }
@@ -41,121 +49,126 @@ find_canvas(const struct state *state, const char *name)
     return NULL;
 }
 
-void
-execute_canvas(struct state* state, const struct node *node)
-{
-    list_add(&state->canvas, canvas_new(node_get_str(node, 0)));
-}
+
 
 void
-execute_rectangle(struct state *state, const struct node *node)
-{
-    struct element *rect = rect_new(state->x, state->y,
-                                    node_get_int(node, 0),
-                                    node_get_int(node, 1));
+execute_group_begin(struct logo* logo, const struct node *node)
+{   
+    logo->saved_x = logo->x;
+    logo->saved_y = logo->y;
+    logo->saved_angle = logo->angle;
     
-    canvas_add(state->current_canvas, rect);
-}
-
-void execute_move_to(struct state* state, const struct node *node)
-{
-    state->x = node_get_int(node, 0);
-    state->y = node_get_int(node, 1);
+    logo->angle = 0;
+    logo->x = 0;
+    logo->y = 0;
+    logo->current_group = canvas_new(node_get_str(node, 0));
 }
 
 void
-execute_draw_canvas(struct state *state, const struct node *node)
-{
-    struct canvas *src  = find_canvas(state, node_get_str(node, 0));
-    struct canvas *dest = state->current_canvas;
+execute_group_end(struct logo* logo, const struct node *node)
+{    
+    logo->x = logo->saved_x;
+    logo->y = logo->saved_y;
+    logo->angle = logo->saved_angle;
     
+    list_add(&logo->groups, logo->current_group);
+    canvas_relocate_elements(logo->current_group);
+    logo->current_group = logo->root;
+}
+
+void
+execute_use(struct logo *logo, const struct node *node)
+{
+    struct canvas *src  = find_group(logo, node_get_str(node, 0));    
     assert(src);
     
     for_each(struct element, el, src->elements, {
-        el = el->copy(el);
-        el->move(el, state->x, state->y);
-        canvas_add(dest, el);
+        struct element *new_el = el->copy(el);
+        new_el->move(new_el, logo->x, logo->y);
+        canvas_add(logo->root, new_el);
     });
 }
 
 void
-execute_set_canvas(struct state* state, const struct node *node)
-{
-    state->current_canvas = find_canvas(state, node_get_str(node, 0));
-    assert(state->current_canvas);
+execute_rectangle(struct logo *logo, const struct node *node)
+{    
+    struct element *rect = rect_new(logo->x, logo->y,
+                                    node_get_int(node, 0),
+                                    node_get_int(node, 1));
+    
+    canvas_add(logo->current_group, rect);
 }
 
 void
-execute_set_angle(struct state *state, const struct node *node)
+execute_move_to(struct logo* logo, const struct node *node)
 {
-    state->angle = node_get_int(node, 0);
+    logo->x = node_get_int(node, 0);
+    logo->y = node_get_int(node, 1);
 }
 
 void
-execute_move(struct state *state, const struct node *node)
+execute_set_angle(struct logo *logo, const struct node *node)
+{
+    logo->angle = node_get_int(node, 0);
+}
+
+void
+execute_move(struct logo *logo, const struct node *node)
 {	
-    state->x += node_get_int(node, 0) * cos(state->angle);
-    state->y += node_get_int(node, 0) * sin(state->angle);
+    logo->x += node_get_int(node, 0) * cos(logo->angle);
+    logo->y += node_get_int(node, 0) * sin(logo->angle);
 }
 
 void
-execute_forward(struct state *state, const struct node *node)
+execute_forward(struct logo *logo, const struct node *node)
 {
     double new_x, new_y;
 
-    new_x = state->x + node_get_int(node, 0) * cos(state->angle);
-    new_y = state->y + node_get_int(node, 0) * sin(state->angle);
+    new_x = logo->x + node_get_int(node, 0) * cos(logo->angle);
+    new_y = logo->y + node_get_int(node, 0) * sin(logo->angle);
     
-    struct element *line = line_new(state->x, state->y,
-                                    new_x, new_y, state->color);
+    struct element *line = line_new(logo->x, logo->y,
+                                    new_x, new_y, logo->color);
     
-    canvas_add(state->current_canvas, line);
+    canvas_add(logo->current_group, line);
     
-    state->x = new_x;
-    state->y = new_y;
-    
-    if (state->x < 0) {
-        canvas_move_all(state->current_canvas, -state->x, 0);
-        state->x = 0;
-    }
-    
-    if (state->y < 0) {
-        canvas_move_all(state->current_canvas, 0, -state->y);
-        state->y = 0;		
-    }
+    logo->x = new_x;
+    logo->y = new_y;
 }
 
 void
-execute_left(struct state *state, const struct node *node)
+execute_left(struct logo *logo, const struct node *node)
 {
-    state->angle -= ((double)node_get_int(node, 0)) * (PI/180.0);
+    logo->angle -= ((double)node_get_int(node, 0)) * (PI/180.0);
 }
 
 void
-execute_right(struct state *state, const struct node *node)
+execute_right(struct logo *logo, const struct node *node)
 {
-    state->angle += ((double)node_get_int(node, 0)) * (PI/180.0);
+    logo->angle += ((double)node_get_int(node, 0)) * (PI/180.0);
 }
 
 void
-execute_repeat(struct state *state, const struct node *node)
+execute_repeat(struct logo *logo, const struct node *node)
 {
     for (int i = 0; i < node_get_int(node, 0); i++) {
-        execute(state, node_get_subnode(node, 1));
+        execute(logo, node_get_subnode(node, 1));
     }
 }
 
 void
-execute_color(struct state *state, const struct node *node)
+execute_color(struct logo *logo, const struct node *node)
 {
-    strncpy(state->color, node_get_str(node, 0), STR_LENGTH);
+    strncpy(logo->color, node_get_str(node, 0), STR_LENGTH);
 }
 
+
+
 static void
-execute(struct state *state, const struct node* program)
+execute(struct logo *logo, const struct node* program)
 {
     while (program) {
-        program->execute(state, program);        
+        program->execute(logo, program);        
         program = program->next;
     }
 }
@@ -164,27 +177,26 @@ void
 svg(const struct node *in, const char *out)
 {
     FILE *file = fopen(out, "w");    
-    struct state state;
-    struct canvas *default_canvas = canvas_new("default");
+    struct logo logo;
     
-    state.angle             = 0;
-    state.x                 = 0;
-    state.y                 = 0;
-    state.canvas            = list_new();
-    list_add(&state.canvas, default_canvas);
-    state.current_canvas    = default_canvas;
+    logo.angle             = 0;
+    logo.x                 = 0;
+    logo.y                 = 0;
+    logo.groups            = list_new();
+    logo.root              = canvas_new("root");
+    logo.current_group     = logo.root;
     
-    strncpy(state.color, DEFAULT_COLOR, 9);    
+    strncpy(logo.color, DEFAULT_COLOR, 9);    
 
-    execute(&state, in);
+    execute(&logo, in);
     
-    fprintf(file, HEADER, (int) canvas_max_x(default_canvas) + 1,
-                        (int) canvas_max_y(default_canvas) + 1);
-
-    canvas_to_svg(default_canvas, file);
+    fprintf(file, HEADER, (int) canvas_max_x(logo.root),
+                          (int) canvas_max_y(logo.root));
+    
+    canvas_to_svg(logo.root, file);
 
     fprintf(file, "</svg>");
     
-    list_free(state.canvas);
+    list_free(logo.groups);
     fclose(file);
 }
