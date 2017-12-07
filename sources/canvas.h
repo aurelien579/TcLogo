@@ -20,13 +20,16 @@ struct canvas {
 struct canvas * canvas_new(const char *str);
 
 void canvas_to_svg(const struct canvas *c, FILE *out);
+void canvas_define(const struct canvas *c, FILE *out);
 
 void canvas_add(struct canvas *c, struct element *el);
 void canvas_relocate_elements(struct canvas *c);
 void canvas_move_all(struct canvas *c, double x, double y);
 
-double canvas_max_x(struct canvas *c);
-double canvas_max_y(struct canvas *c);
+double canvas_max_x(const struct canvas *c);
+double canvas_max_y(const struct canvas *c);
+double canvas_width(const struct canvas *c);
+double canvas_height(const struct canvas *c);
 
 void canvas_free(struct canvas *c);
 

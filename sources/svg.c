@@ -81,12 +81,17 @@ execute_use(struct logo *logo, const struct node *node)
 {
     struct canvas *src  = find_group(logo, node_get_str(node, 0));    
     assert(src);
-    
+
+#ifdef DONT_USE_USE
     for_each(struct element, el, src->elements, {
         struct element *new_el = el->copy(el);
         new_el->move(new_el, logo->x, logo->y);
         canvas_add(logo->root, new_el);
     });
+#else
+    canvas_add(logo->root, use_new(src, logo->x, logo->y));
+#endif
+    
 }
 
 void
@@ -190,9 +195,20 @@ svg(const struct node *in, const char *out)
 
     execute(&logo, in);
     
-    fprintf(file, HEADER, (int) canvas_max_x(logo.root),
-                          (int) canvas_max_y(logo.root));
+    canvas_relocate_elements(logo.root);
     
+    fprintf(file, HEADER, (int) canvas_max_x(logo.root) + 5,
+                          (int) canvas_max_y(logo.root) + 5);
+
+#ifndef DONT_USE_USE
+    fprintf(file, "<defs>\n");
+    
+    for_each(struct canvas, canvas, logo.groups, {
+        canvas_define(canvas, file);
+    });
+    
+    fprintf(file, "</defs>\n");
+#endif
     canvas_to_svg(logo.root, file);
 
     fprintf(file, "</svg>");
