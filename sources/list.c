@@ -21,7 +21,7 @@ list_add(struct list_head **head, void *data)
 
 void
 list_free(struct list_head *head)
-{    
+{
     struct list_head *tmp;
     struct list_head *cur = head;
     

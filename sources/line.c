@@ -16,17 +16,17 @@ struct line_data {
 static struct element *
 line_copy(struct element *src)
 {
-	struct element *dest = cast_malloc(struct element);
-	
-	*dest = *src;
-	
-	struct line_data *dest_data = cast_malloc(struct line_data);
-	struct line_data *src_data = (struct line_data*) src->private_data;
-	*dest_data = *src_data;
-	
-	dest->private_data = dest_data;
-	
-	return dest;
+    struct element *dest = cast_malloc(struct element);
+    
+    *dest = *src;
+    
+    struct line_data *dest_data = cast_malloc(struct line_data);
+    struct line_data *src_data = (struct line_data*) src->private_data;
+    *dest_data = *src_data;
+    
+    dest->private_data = dest_data;
+    
+    return dest;
 }
 
 static void

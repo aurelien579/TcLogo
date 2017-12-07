@@ -1,0 +1,7 @@
+sources/*.o
+*.svg
+tclogo
+sources/logo.tab.h
+sources/logo.tab.c
+sources/logo.yy.c
+
