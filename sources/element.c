@@ -51,11 +51,30 @@ find_max_y(const struct list_head *elements)
     return max_y;
 }
 
+void
+element_to_svg(const struct element *el, FILE *out)
+{
+    if (el->to_svg) {
+        el->to_svg(el, out);
+    }
+}
+
+void
+element_move(struct element *el, double x, double y)
+{
+    el->x += x;
+    el->y += y;
+    
+    if (el->move) {
+        el->move(el, x, y);
+    }
+}
+
 struct element *
 element_new(double x, double y, double w, double h,
-            to_svg_t to_svg, move_t move, copy_t copy, void *private)
+            to_svg_t to_svg, move_t move, void *private)
 {
-    struct element *el = cast_malloc(struct element);
+    struct element *el = alloc(struct element);
         
     el->x        = x;
     el->y        = y;
@@ -63,7 +82,6 @@ element_new(double x, double y, double w, double h,
     el->height   = h;
     el->to_svg          = to_svg;
     el->move            = move;
-    el->copy            = copy;    
     el->private_data    = private;
     
     return el;

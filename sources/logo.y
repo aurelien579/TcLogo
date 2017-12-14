@@ -101,7 +101,10 @@ int main(int argc, char **argv)
         }
     }
     
-    svg(root, out);
+    struct logo *logo = logo_new();
+    logo_execute(logo, root);
+    
+    svg_write(logo, out);    
     
     node_free(root);
     

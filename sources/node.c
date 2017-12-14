@@ -30,10 +30,10 @@ static int functions_count = sizeof(functions) / sizeof(struct function);
 struct node *
 node_new(enum node_type type, unsigned int arg_count)
 {
-    struct node *node = cast_malloc(struct node);
+    struct node *node = alloc(struct node);
 
     node->type = type;
-    node->args = (struct arg *) malloc(sizeof(struct arg) * arg_count);
+    node->args = alloc_n(struct arg, arg_count);
     node->arg_count = arg_count;
     node->next = NULL;
     

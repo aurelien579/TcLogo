@@ -1,4 +1,4 @@
-#include "canvas.h"
+#include "group.h"
 #include "utils.h"
 #include "element.h"
 #include <stdlib.h>
@@ -8,90 +8,91 @@
 #define G_OPEN  "<g id=\"%s\">"
 #define G_CLOSE "</g>"
 
-struct canvas *
-canvas_new(const char *str)
+struct group *
+group_new(const char *str)
 {
-    struct canvas *c = cast_malloc(struct canvas);
+    struct group *c = alloc(struct group);
 
     c->elements = list_new();
-    strncpy(c->name, str, STR_LENGTH);
+    c->name = alloc_n(char, strlen(str) + 1);
+    strcpy(c->name, str);
     
     return c;
 }
 
 void
-canvas_to_svg(const struct canvas *c, FILE *out)
+group_to_svg(const struct group *c, FILE *out)
 {
     for_each(struct element, el, c->elements, {
-        el->to_svg(el, out);
+        element_to_svg(el, out);
     });
 }
 
-
 void
-canvas_define(const struct canvas *c, FILE *out)
+group_define(const struct group *c, FILE *out)
 {
     fprintf(out, G_OPEN, c->name);
-    canvas_to_svg(c, out);
+    group_to_svg(c, out);
     fprintf(out, G_CLOSE);
 }
 
 void
-canvas_move_all(struct canvas *c, double x, double y)
+group_move_all(struct group *c, double x, double y)
 {
     for_each(struct element, el, c->elements, {
-        el->move(el, x, y);
+        element_move(el, x, y);
     });
 }
 
 void
-canvas_relocate_elements(struct canvas *c)
+group_relocate_elements(struct group *c)
 {    
     double min_x = find_min_x(c->elements);
     double min_y = find_min_y(c->elements);
     
-    canvas_move_all(c, -min_x, -min_y);
+    group_move_all(c, -min_x, -min_y);
 }
 
 void
-canvas_add(struct canvas *c, struct element *el)
+group_add(struct group *c, struct element *el)
 {
     list_add(&c->elements, el);
 }
 
 double
-canvas_max_x(const struct canvas *c)
+group_max_x(const struct group *c)
 {
     return find_max_x(c->elements);
 }
 
 double
-canvas_max_y(const struct canvas *c)
+group_max_y(const struct group *c)
 {
     return find_max_y(c->elements);
 }
 
 double
-canvas_width(const struct canvas *c)
+group_width(const struct group *c)
 {
     return find_max_x(c->elements) - find_min_x(c->elements);
 }
 
 double
-canvas_height(const struct canvas *c)
+group_height(const struct group *c)
 {
     return find_max_y(c->elements) - find_min_y(c->elements);
 }
 
 
 void
-canvas_free(struct canvas *c)
-{    
+group_free(struct group *c)
+{
     for_each(struct element, el, c->elements, {
         free(el->private_data);
     });
     
     list_free(c->elements);
     
+    free(c->name);
     free(c);
 }
