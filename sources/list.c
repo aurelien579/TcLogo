@@ -27,7 +27,10 @@ list_free(struct list_head *head)
     
     while (cur) {
         tmp = cur->next;
-        free(cur->data);
+        
+        if (cur->data)
+            free(cur->data);
+        
         free(cur);
         cur = tmp;
     }

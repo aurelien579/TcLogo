@@ -106,6 +106,7 @@ int main(int argc, char **argv)
     
     svg_write(logo, out);    
     
+    logo_free(logo);
     node_free(root);
     
     return 0;

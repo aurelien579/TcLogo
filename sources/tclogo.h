@@ -5,6 +5,8 @@ struct node;
 struct logo;
 
 struct logo *logo_new();
+void logo_free(struct logo *logo);
+
 void logo_execute(struct logo *logo, const struct node* program);
 struct list_head *logo_get_groups(const struct logo *logo);
 struct group *logo_get_root(const struct logo *logo);

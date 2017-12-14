@@ -86,13 +86,14 @@ group_height(const struct group *c)
 
 void
 group_free(struct group *c)
-{
-    for_each(struct element, el, c->elements, {
+{    
+    for_each(struct element, el, c->elements, {       
         free(el->private_data);
     });
     
     list_free(c->elements);
     
     free(c->name);
+    
     free(c);
 }

@@ -66,6 +66,26 @@ logo_new()
     return logo;
 }
 
+void
+logo_free(struct logo *logo)
+{
+    struct list_head *cur = logo->groups;
+    struct group *g;
+    
+    while (cur) {
+        g = (struct group *) cur->data;
+        group_free(g);
+        cur->data = NULL;
+        cur = cur->next;
+    }
+    
+    list_free(logo->groups);
+    
+    group_free(logo->root);
+    
+    free(logo);
+}
+
 struct list_head *
 logo_get_groups(const struct logo *logo)
 {

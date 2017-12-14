@@ -10,7 +10,7 @@ struct group {
 };
 
 struct group * group_new  (const char *str);
-void            group_free (struct group *c);
+void           group_free (struct group *c);
 
 void group_to_svg(const struct group *c, FILE *out);
 void group_define(const struct group *c, FILE *out);
