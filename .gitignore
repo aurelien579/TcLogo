@@ -1,7 +1,16 @@
-sources/*.o
 *.svg
-tclogo
-sources/logo.tab.h
-sources/logo.tab.c
-sources/logo.yy.c
+libtclogo/lib
+libtclogo/include/logo.tab.h
+libtclogo/src/*.o
+libtclogo/src/logo.tab.h
+libtclogo/src/logo.tab.c
+libtclogo/src/logo.yy.c
 
+tclogo/include
+tclogo/lib
+tclogo/src/*.o
+tclogo/tclogo
+
+tests/include
+tests/lib
+tests/tests
