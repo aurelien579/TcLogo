@@ -1,6 +1,7 @@
-#include "group.h"
-#include "utils.h"
-#include "element.h"
+#include <tclogo/group.h>
+#include <tclogo/utils.h>
+#include <tclogo/element.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

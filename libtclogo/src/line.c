@@ -1,5 +1,7 @@
-#include "element.h"
-#include "utils.h"
+#include <tclogo/element.h>
+#include <tclogo/utils.h>
+#include <tclogo/constants.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

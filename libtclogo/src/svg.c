@@ -1,8 +1,8 @@
-#include "svg.h"
-#include "list.h"
-#include "element.h"
-#include "utils.h"
-#include "group.h"
+#include <tclogo/svg.h>
+#include <tclogo/list.h>
+#include <tclogo/utils.h>
+#include <tclogo/group.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 

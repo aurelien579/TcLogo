@@ -1,8 +1,8 @@
 #ifndef GROUP_H
 #define GROUP_H
 
-#include "list.h"
-#include "element.h"
+#include <tclogo/list.h>
+#include <tclogo/element.h>
 
 struct group {
     char               *name;

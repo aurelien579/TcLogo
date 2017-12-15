@@ -1,5 +1,6 @@
-#include "list.h"
-#include "utils.h"
+#include <tclogo/list.h>
+#include <tclogo/utils.h>
+
 #include <stdlib.h>
 
 struct list_head *

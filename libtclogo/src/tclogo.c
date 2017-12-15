@@ -1,8 +1,10 @@
-#include "tclogo.h"
-#include "utils.h"
-#include "list.h"
-#include "group.h"
-#include "node.h"
+#include <tclogo/tclogo.h>
+#include <tclogo/utils.h>
+#include <tclogo/list.h>
+#include <tclogo/group.h>
+#include <tclogo/node.h>
+#include <tclogo/constants.h>
+
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>

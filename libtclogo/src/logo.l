@@ -1,8 +1,9 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include "node.h"
-#include "logo.tab.h"
+#include <tclogo/constants.h>
+#include <tclogo/node.h>
+#include <tclogo/logo.tab.h>
 %}
 
 %%
@@ -23,7 +24,7 @@
 
 
 ([a-z]|[A-Z])+ {
-    strncpy(yylval.str_type, yytext, 10);
+    strncpy(yylval.str_type, yytext, STR_LENGTH - 1);
     return STR;
 }
 

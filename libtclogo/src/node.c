@@ -1,5 +1,6 @@
-#include "node.h"
-#include "utils.h"
+#include <tclogo/node.h>
+#include <tclogo/utils.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

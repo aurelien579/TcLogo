@@ -1,6 +1,7 @@
-#include "element.h"
-#include "utils.h"
-#include "group.h"
+#include <tclogo/element.h>
+#include <tclogo/utils.h>
+#include <tclogo/group.h>
+
 #include <stdlib.h>
 
 #define USE_SVG "<use x=\"%f\" y=\"%f\" href=\"#%s\"/>\n"

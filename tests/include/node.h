@@ -1,9 +1,7 @@
-#ifndef NODE_H_
-#define NODE_H_
+#ifndef NODE_H
+#define NODE_H
 
-#define STR_LENGTH  10
-
-#include "svg.h"
+#include <tclogo/svg.h>
 
 struct logo;
 

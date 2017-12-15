@@ -1,5 +1,6 @@
-#include "element.h"
-#include "utils.h"
+#include <tclogo/element.h>
+#include <tclogo/utils.h>
+
 #include <stdlib.h>
 #include <float.h>
 
@@ -52,7 +53,8 @@ find_max_y(const struct list_head *elements)
 }
 
 void
-element_to_svg(const struct element *el, FILE *out)
+element_to_svg(const struct element *el,
+               FILE                 *out)
 {
     if (el->to_svg) {
         el->to_svg(el, out);
@@ -60,7 +62,9 @@ element_to_svg(const struct element *el, FILE *out)
 }
 
 void
-element_move(struct element *el, double x, double y)
+element_move(struct element *el,
+             double          x,
+             double          y)
 {
     el->x += x;
     el->y += y;
@@ -71,18 +75,23 @@ element_move(struct element *el, double x, double y)
 }
 
 struct element *
-element_new(double x, double y, double w, double h,
-            to_svg_t to_svg, move_t move, void *private)
+element_new(double   x,
+            double   y,
+            double   w,
+            double   h,
+            to_svg_t to_svg,
+            move_t   move,
+            void    *private)
 {
     struct element *el = alloc(struct element);
-        
-    el->x        = x;
-    el->y        = y;
-    el->width    = w;
-    el->height   = h;
-    el->to_svg          = to_svg;
-    el->move            = move;
-    el->private_data    = private;
+    
+    el->x            = x;
+    el->y            = y;
+    el->width        = w;
+    el->height       = h;
+    el->to_svg       = to_svg;
+    el->move         = move;
+    el->private_data = private;
     
     return el;
 }

@@ -1,31 +1,20 @@
-CC 	= gcc
-CFLAGS 	= -std=c99 -g
-LIBS 	= -lm
-TARGET 	= tclogo
-TEST	= node-test
-OBJS 	= $(patsubst %.c, %.o, $(wildcard sources/*.c)) \
-		sources/logo.yy.o \
-		sources/logo.tab.o
+all: tclogo
 
-all: $(TARGET)
+tclogo: libtclogo
+	cp -r libtclogo/include/* tclogo/include/
+	cp -r libtclogo/lib/* tclogo/lib/
+	cd tclogo && $(MAKE)
 
-$(TARGET): $(OBJS)
-	$(CC) $^ -o $@ $(LIBS) 
-
-$(TEST): sources/node.o tests/node_test.o
-	$(CC) $^ -o $@
-
-sources/logo.tab.c: sources/logo.y
-	bison -d $< -o $@
-
-sources/logo.yy.c: sources/logo.l sources/logo.tab.c
-	flex -o $@ $<
-
-%.o: %.c
-	$(CC) $(CFLAGS) $^ -c -o $@
-
-.PHONY: clean
+libtclogo:
+	cd libtclogo && $(MAKE)
+	
+tests: libtclogo
+	cp -r libtclogo/include/* tests/include/
+	cp -r libtclogo/lib/* tests/lib/
+	cd tests && $(MAKE)
 
 clean:
-	rm -f $(OBJS) $(TARGET) sources/logo.yy.c sources/logo.tab.h sources/logo.tab.c
+	cd tclogo && $(MAKE) clean
+	cd libtclogo && $(MAKE) clean
 
+.PHONY: clean libtclogo tclogo tests

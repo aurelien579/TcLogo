@@ -2,11 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "node.h"
-#include "svg.h"
+#include <tclogo/constants.h>
+#include <tclogo/node.h>
 
 int
-yyerror(const char *msg)
+yyerror(struct node **root, const char *msg)
 {
     fprintf(stderr, "[ERROR] %s\n", msg);
 }
@@ -17,17 +17,17 @@ yywrap()
     return 1;
 }
 
-static struct node *root;
-
 %}
+
+%parse-param { struct node **root }
 
 %token NUMBER FORWARD LEFT RIGHT REPEAT STR COLOR STR_DELEMITER
 %token MOVE SET_ANGLE GROUP_BEGIN GROUP_END USE MOVE_TO RECTANGLE
 
 %union {
-    struct node * node_type;
-    int 	      int_type;
-    char	      str_type[STR_LENGTH];
+    struct node *node_type;
+    int 	     int_type;
+    char	     str_type[STR_LENGTH];
 };
 
 %type <str_type> STR
@@ -37,7 +37,7 @@ static struct node *root;
 %%
 
 LOGO: PROG {
-    root = $1;
+    *root = $1;
 }
 
 PROG: INST {
@@ -88,26 +88,3 @@ INST: FORWARD NUMBER {
 }
 
 %%
-
-int main(int argc, char **argv)
-{
-    yyparse();
-    
-    char *out = "out.svg";
-    
-    for (int i = 1; i < argc - 1; i++) {
-        if (strcmp("-o", argv[i]) == 0) {
-            out = argv[i+1];
-        }
-    }
-    
-    struct logo *logo = logo_new();
-    logo_execute(logo, root);
-    
-    svg_write(logo, out);    
-    
-    logo_free(logo);
-    node_free(root);
-    
-    return 0;
-}
