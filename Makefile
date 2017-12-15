@@ -12,5 +12,6 @@ tests: libtclogo
 clean:
 	cd tclogo && $(MAKE) clean
 	cd libtclogo && $(MAKE) clean
+	cd tests && $(MAKE) clean
 
 .PHONY: clean libtclogo tclogo tests
