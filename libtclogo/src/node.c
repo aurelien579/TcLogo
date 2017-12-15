@@ -19,7 +19,7 @@ static struct function functions[] = {
     { NODE_REPEAT, execute_repeat },
     { NODE_MOVE, execute_move },
     { NODE_SET_ANGLE, execute_set_angle },
-    { NODE_GROUP_BEGIN, execute_group_begin }, 
+    { NODE_GROUP_BEGIN, execute_group_begin },
     { NODE_GROUP_END, execute_group_end },
     { NODE_USE, execute_use },
     { NODE_MOVE_TO, execute_move_to },
@@ -29,7 +29,8 @@ static struct function functions[] = {
 static int functions_count = sizeof(functions) / sizeof(struct function);
 
 struct node *
-node_new(enum node_type type, unsigned int arg_count)
+node_new(enum node_type type,
+		 unsigned int 	arg_count)
 {
     struct node *node = alloc(struct node);
 
@@ -37,7 +38,7 @@ node_new(enum node_type type, unsigned int arg_count)
     node->args = alloc_n(struct arg, arg_count);
     node->arg_count = arg_count;
     node->next = NULL;
-    
+
     for (int i = 0; i < functions_count; i++) {
         if (functions[i].node_type == type) {
             node->execute = functions[i].f;
@@ -53,9 +54,9 @@ node_free(struct node *node)
     if (node->next) {
         node_free(node->next);
     }
-    
+
     struct arg arg;
-    
+
     for (unsigned int i = 0; i < node->arg_count; i++) {
         arg = node->args[i];
         if (arg.type == ARG_NODE) {
@@ -64,16 +65,17 @@ node_free(struct node *node)
             free(arg.str);
         }
     }
-    
-    free(node->args);	
+
+    free(node->args);
     free(node);
 }
 
 void
-node_append(struct node *node, struct node *new)
+node_append(struct node *node,
+		    struct node *new)
 {
     struct node *current = node;
-    
+
     while (current->next) {
         current = current->next;
     }
@@ -88,7 +90,7 @@ node_print(struct node *node)
     struct node *cur = node;
 
     while (cur) {
-    
+
         switch (cur->type) {
             case NODE_FORWARD:
                 printf("FORWARD");
@@ -118,36 +120,43 @@ node_print(struct node *node)
 #endif
 
 int
-node_get_int(const struct node *node, unsigned int i)
+node_get_int(const struct node *node,
+			 unsigned int 		i)
 {
     assert(i < node->arg_count);
     return node->args[i].val;
 }
 
 char *
-node_get_str(const struct node *node, unsigned int i)
+node_get_str(const struct node *node,
+			 unsigned int 		i)
 {
     assert(i < node->arg_count);
     return node->args[i].str;
 }
 
 struct node *
-node_get_subnode(const struct node *node, unsigned int i)
+node_get_subnode(const struct node *node,
+				 unsigned int 		i)
 {
     assert(i < node->arg_count);
     return node->args[i].subnode;
 }
 
 void
-node_set_int(struct node *node, unsigned int i, int val)
+node_set_int(struct node *node,
+			 unsigned int i,
+			 int 		  val)
 {
     assert(i < node->arg_count);
     node->args[i].type = ARG_INT;
-    node->args[i].val = val;	
+    node->args[i].val = val;
 }
 
 void
-node_set_str(struct node *node, unsigned int i, const char *str)
+node_set_str(struct node *node,
+		     unsigned int i,
+		     const char  *str)
 {
     assert(i < node->arg_count);
     node->args[i].type = ARG_STR;
@@ -156,7 +165,9 @@ node_set_str(struct node *node, unsigned int i, const char *str)
 }
 
 void
-node_set_subnode(struct node *node, unsigned int i, struct node *subnode)
+node_set_subnode(struct node *node,
+				 unsigned int i,
+				 struct node *subnode)
 {
     assert(i < node->arg_count);
     node->args[i].type = ARG_NODE;

@@ -1,5 +1,5 @@
-#ifndef _TCLOGO_UTILS_H_
-#define _TCLOGO_UTILS_H_
+#ifndef UTILS_H
+#define UTILS_H
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))

@@ -1,5 +1,5 @@
-#ifndef _TCLOGO_ELEMENT_H_
-#define _TCLOGO_ELEMENT_H_
+#ifndef ELEMENT_H
+#define ELEMENT_H
 
 #include <stdio.h>
 #include <tclogo/list.h>

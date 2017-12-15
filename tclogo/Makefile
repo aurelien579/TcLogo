@@ -1,6 +1,6 @@
 CC 		= gcc
-CFLAGS 	= -std=c99 -g -Iinclude
-LIBS	= -Llib -ltclogo -lm
+CFLAGS 	= -std=c99 -g -I../libtclogo/include
+LIBS	= -L../libtclogo/lib -ltclogo -lm
 TARGET 	= tclogo
 OBJS 	= $(patsubst %.c, %.o, $(wildcard src/*.c))
 

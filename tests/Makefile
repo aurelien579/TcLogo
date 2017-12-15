@@ -1,6 +1,6 @@
-LIBS 	= -Llib/ -ltclogo -lm
+LIBS 	= -L../libtclogo/lib/ -ltclogo -lm
 CC		= gcc
-CFLAGS  = -Iinclude/
+CFLAGS  = -I../libtclogo/include/
 
 all: tests
 

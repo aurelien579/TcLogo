@@ -27,7 +27,8 @@ struct logo {
 };
 
 static struct group *
-find_group(const struct logo *logo, const char *name)
+find_group(const struct logo *logo,
+		   const char 		 *name)
 {
     for_each(struct group, group, logo->groups, {
         if (strcmp(group->name, name) == 0) {
@@ -41,7 +42,8 @@ find_group(const struct logo *logo, const char *name)
 
 
 void
-logo_execute(struct logo *logo, const struct node* program)
+logo_execute(struct logo 		*logo,
+			 const struct node  *program)
 {
     while (program) {
         program->execute(logo, program);        
@@ -101,7 +103,8 @@ logo_get_root(const struct logo *logo)
 }
 
 void
-execute_group_begin(struct logo* logo, const struct node *node)
+execute_group_begin(struct logo 		*logo,
+					const struct node   *node)
 {   
     logo->saved_x = logo->x;
     logo->saved_y = logo->y;
@@ -114,7 +117,8 @@ execute_group_begin(struct logo* logo, const struct node *node)
 }
 
 void
-execute_group_end(struct logo* logo, const struct node *node)
+execute_group_end(struct logo 		*logo,
+				  const struct node *node)
 {    
     logo->x = logo->saved_x;
     logo->y = logo->saved_y;
@@ -126,7 +130,8 @@ execute_group_end(struct logo* logo, const struct node *node)
 }
 
 void
-execute_use(struct logo *logo, const struct node *node)
+execute_use(struct logo 	   *logo,
+			const struct node  *node)
 {
     struct group *src  = find_group(logo, node_get_str(node, 0));    
     assert(src);
@@ -135,7 +140,8 @@ execute_use(struct logo *logo, const struct node *node)
 }
 
 void
-execute_rectangle(struct logo *logo, const struct node *node)
+execute_rectangle(struct logo 	   	 *logo,
+				  const struct node  *node)
 {    
     struct element *rect = rect_new(logo->x, logo->y,
                                     node_get_int(node, 0),
@@ -145,27 +151,31 @@ execute_rectangle(struct logo *logo, const struct node *node)
 }
 
 void
-execute_move_to(struct logo* logo, const struct node *node)
+execute_move_to(struct logo 	   *logo,
+				const struct node  *node)
 {
     logo->x = node_get_int(node, 0);
     logo->y = node_get_int(node, 1);
 }
 
 void
-execute_set_angle(struct logo *logo, const struct node *node)
+execute_set_angle(struct logo 	    *logo,
+				  const struct node *node)
 {
     logo->angle = node_get_int(node, 0);
 }
 
 void
-execute_move(struct logo *logo, const struct node *node)
+execute_move(struct logo 	   *logo,
+			 const struct node *node)
 {	
     logo->x += node_get_int(node, 0) * cos(logo->angle);
     logo->y += node_get_int(node, 0) * sin(logo->angle);
 }
 
 void
-execute_forward(struct logo *logo, const struct node *node)
+execute_forward(struct logo 	   *logo,
+				const struct node  *node)
 {
     double new_x, new_y;
 
@@ -182,19 +192,22 @@ execute_forward(struct logo *logo, const struct node *node)
 }
 
 void
-execute_left(struct logo *logo, const struct node *node)
+execute_left(struct logo 	   *logo,
+			 const struct node *node)
 {
     logo->angle -= ((double)node_get_int(node, 0)) * (PI/180.0);
 }
 
 void
-execute_right(struct logo *logo, const struct node *node)
+execute_right(struct logo 	    *logo,
+			  const struct node *node)
 {
     logo->angle += ((double)node_get_int(node, 0)) * (PI/180.0);
 }
 
 void
-execute_repeat(struct logo *logo, const struct node *node)
+execute_repeat(struct logo 	   	 *logo,
+			   const struct node *node)
 {
     struct node *program = node_get_subnode(node, 1);
     struct node *cur;
@@ -210,7 +223,8 @@ execute_repeat(struct logo *logo, const struct node *node)
 }
 
 void
-execute_color(struct logo *logo, const struct node *node)
+execute_color(struct logo 	   	 *logo,
+			  const struct node  *node)
 {
     strncpy(logo->color, node_get_str(node, 0), STR_LENGTH);
 }

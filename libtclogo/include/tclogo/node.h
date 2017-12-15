@@ -1,5 +1,5 @@
-#ifndef NODE_H
-#define NODE_H
+#ifndef _TCLOGO_NODE_H_
+#define _TCLOGO_NODE_H_
 
 #include <tclogo/svg.h>
 
@@ -31,31 +31,48 @@ struct arg {
 
     union {
         int             val;
-        char *          str;
-        struct node *   subnode;
+        char 		   *str;
+        struct node    *subnode;
     };
 };
 
 struct node {
     enum node_type         type;
-    struct arg *           args; 		/* Array of args */
+    struct arg 			  *args; 		/* Array of args */
     unsigned int           arg_count;
-    struct node *          next;
+    struct node 		  *next;
     void (*execute) (struct logo*, const struct node*);
 };
 
-struct node *node_new(enum node_type type, unsigned int arg_count);
+struct node    *node_new		(enum node_type type,
+								 unsigned int arg_count);
 
-void node_free(struct node *p);
-void node_append(struct node *node, struct node *new);
-void node_print(struct node *p);
+void 			node_free		(struct node *p);
 
-int node_get_int(const struct node *node, unsigned int i);
-char * node_get_str(const struct node *node, unsigned int i);
-struct node *node_get_subnode(const struct node *node, unsigned int i);
+void 			node_append		(struct node *node,
+								 struct node *new);
 
-void node_set_int(struct node *node, unsigned int i, int val);
-void node_set_str(struct node *node, unsigned int i, const char *str);
-void node_set_subnode(struct node *node, unsigned int i, struct node *subnode);
+void 			node_print		(struct node *p);
+
+int 			node_get_int	(const struct node *node,
+								 unsigned int i);
+
+char 		   *node_get_str	(const struct node *node,
+								 unsigned int i);
+
+struct node    *node_get_subnode(const struct node *node,
+								 unsigned int i);
+
+void 			node_set_int	(struct node *node,
+								 unsigned int i,
+								 int val);
+
+void 			node_set_str	(struct node *node,
+								 unsigned int i,
+								 const char *str);
+
+void 			node_set_subnode(struct node *node,
+								 unsigned int i,
+								 struct node *subnode);
 
 #endif

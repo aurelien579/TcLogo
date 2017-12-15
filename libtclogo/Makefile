@@ -17,6 +17,12 @@ src/logo.tab.c: src/logo.y
 src/logo.yy.c: src/logo.l src/logo.tab.c
 	flex -o $@ $<
 
+src/logo.tab.o: src/logo.tab.c
+	$(CC) $(CFLAGS) -w $^ -c -o $@
+
+src/logo.yy.o: src/logo.yy.c
+	$(CC) $(CFLAGS) -w $^ -c -o $@
+
 %.o: %.c
 	$(CC) $(CFLAGS) $^ -c -o $@
 

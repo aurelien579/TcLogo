@@ -6,7 +6,8 @@
 #include <tclogo/node.h>
 
 int
-yyerror(struct node **root, const char *msg)
+yyerror(struct node **root,
+	    const char   *msg)
 {
     fprintf(stderr, "[ERROR] %s\n", msg);
 }
