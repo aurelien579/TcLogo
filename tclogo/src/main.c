@@ -7,21 +7,23 @@
 #include <tclogo/svg.h>
 #include <tclogo/node.h>
 
-int main(int argc, char **argv)
+int 
+main(int    argc,
+     char **argv)
 {
-	struct node *root;
-	
-    yyparse(&root);
-    
+    struct node *root;
+    struct logo *logo;    
     char *out = "out.svg";
-    
+	
     for (int i = 1; i < argc - 1; i++) {
         if (strcmp("-o", argv[i]) == 0) {
             out = argv[i+1];
         }
     }
+        
+    yyparse(&root);
     
-    struct logo *logo = logo_new();
+    logo = logo_new();
     logo_execute(logo, root);
     
     svg_write(logo, out);    
