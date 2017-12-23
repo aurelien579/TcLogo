@@ -2,6 +2,10 @@
 #include <tclogo/utils.h>
 #include <tclogo/constants.h>
 
+#ifdef CAIRO
+#include <gdk/gdk.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,6 +19,19 @@ struct line_data {
     double  y1;
     double  y2;
 };
+
+#ifdef CAIRO
+static void
+line_draw(const struct element *el,
+          cairo_t              *cr)
+{
+    struct line_data *data = (struct line_data *) el->private_data;
+    printf("line_draw %f %f %f %f\n", data->x1, data->y1, data->x2, data->y2);
+    cairo_move_to(cr, data->x1, data->y1);
+    cairo_line_to(cr, data->x2, data->y2);
+    cairo_stroke(cr);
+}
+#endif
 
 static void
 line_to_svg(const struct element *el,
@@ -57,5 +74,11 @@ line_new(double 	 x1,
     double w = max(x1, x2) - x;
     double h = max(y1, y2) - y;
 
-    return element_new(x, y, w, h, line_to_svg, line_move, data);
+    return element_new(x, y, w, h,
+                       line_to_svg,
+                       line_move,
+#ifdef CAIRO
+                       line_draw,
+#endif
+                       data);
 }

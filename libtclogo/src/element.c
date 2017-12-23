@@ -1,3 +1,7 @@
+#ifdef CAIRO
+#include <gdk/gdk.h>
+#endif
+
 #include <tclogo/element.h>
 #include <tclogo/utils.h>
 
@@ -52,6 +56,19 @@ find_max_y(const struct list_head *elements)
     return max_y;
 }
 
+#ifdef CAIRO
+
+void
+element_draw(const struct element *el,
+             cairo_t              *cr)
+{
+    if (el->draw) {
+        el->draw(el, cr);
+    }
+}
+
+#endif
+
 void
 element_to_svg(const struct element *el,
                FILE                 *out)
@@ -81,6 +98,9 @@ element_new(double   x,
             double   h,
             to_svg_t to_svg,
             move_t   move,
+#ifdef CAIRO
+            draw_t   draw,
+#endif
             void    *private)
 {
     struct element *el = alloc(struct element);
@@ -91,6 +111,11 @@ element_new(double   x,
     el->height       = h;
     el->to_svg       = to_svg;
     el->move         = move;
+    
+#ifdef CAIRO
+    el->draw        = draw;
+#endif    
+
     el->private_data = private;
 
     return el;

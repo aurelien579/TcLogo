@@ -1,4 +1,4 @@
-all: tclogo tclogo-gui
+all: tclogo-gui
 
 run: tclogo-gui 
 	cd tclogo-gui && ./tclogo

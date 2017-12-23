@@ -2,6 +2,10 @@
 #include <tclogo/utils.h>
 #include <tclogo/element.h>
 
+#ifdef CAIRO
+#include <gdk/gdk.h>
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -20,6 +24,17 @@ group_new(const char *str)
 
     return c;
 }
+
+#ifdef CAIRO
+void
+group_draw(const struct group *c,
+           cairo_t            *cr)
+{
+    for_each(struct element, el, c->elements, {
+        element_draw(el, cr);
+    });
+}
+#endif
 
 void
 group_to_svg(const struct group *c,
@@ -54,7 +69,7 @@ group_relocate_elements(struct group *c)
 {
     double min_x = find_min_x(c->elements);
     double min_y = find_min_y(c->elements);
-
+    
     group_move_all(c, -min_x, -min_y);
 }
 
@@ -75,6 +90,18 @@ double
 group_max_y(const struct group *c)
 {
     return find_max_y(c->elements);
+}
+
+double
+group_min_x(const struct group *c)
+{
+    return find_min_x(c->elements);
+}
+
+double
+group_min_y(const struct group *c)
+{
+    return find_min_y(c->elements);
 }
 
 double

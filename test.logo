@@ -1,0 +1,5 @@
+
+REPEAT 5 [
+	FORWARD 100
+	RIGHT 70
+]

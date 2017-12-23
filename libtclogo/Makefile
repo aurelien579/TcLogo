@@ -1,5 +1,7 @@
+GTK_CFLAGS  = `pkg-config --cflags gtk+-3.0` -DCAIRO
+
 CC 		= gcc
-CFLAGS 	= -std=c99 -g -Iinclude
+CFLAGS 	= -std=c99 -g -Iinclude $(GTK_CFLAGS)
 TARGET 	= lib/libtclogo.a
 OBJS 	= $(patsubst %.c, %.o, $(wildcard src/*.c)) \
 			src/logo.yy.o \

@@ -4,6 +4,10 @@
 #include <tclogo/list.h>
 #include <tclogo/element.h>
 
+#ifdef CAIRO
+#include <gdk/gdk.h>
+#endif
+
 struct group {
     char               *name;
     struct list_head   *elements;
@@ -15,6 +19,11 @@ struct group {
 struct group   *group_new  				(const char *str);
 
 void           	group_free 				(struct group *c);
+
+#ifdef CAIRO
+void            group_draw              (const struct group *c,
+                                         cairo_t            *cr);
+#endif
 
 /**
  * Write svg code representing the content of the groups. This function,
@@ -42,6 +51,8 @@ void 			group_move_all          (struct group *c,
 										 double x,
 										 double y);
 
+double          group_min_x             (const struct group *c);
+double          group_min_y             (const struct group *c);
 double 			group_max_x 			(const struct group *c);
 double 			group_max_y 			(const struct group *c);
 double 			group_width 			(const struct group *c);

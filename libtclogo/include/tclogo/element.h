@@ -4,11 +4,18 @@
 #include <stdio.h>
 #include <tclogo/list.h>
 
+#ifdef CAIRO
+#include <gdk/gdk.h>
+#endif
+
 struct element;
 struct group;
 
 typedef void (*to_svg_t) (const struct element *, FILE *);
 typedef void (*move_t)   (struct element *, double, double);
+#ifdef CAIRO
+typedef void (*draw_t)   (const struct element *, cairo_t *);
+#endif
 
 struct element {
     double      x;
@@ -18,6 +25,9 @@ struct element {
     
     to_svg_t    to_svg;
     move_t      move;
+#ifdef CAIRO
+    draw_t      draw;
+#endif
     void       *private_data;
 };
 
@@ -43,6 +53,11 @@ void            element_to_svg  (const struct element *el,
 void            element_move    (struct element *el,
                                  double          x,
                                  double          y);
+                                 
+#ifdef CAIRO
+void            element_draw    (const struct element *el,
+                                 cairo_t              *cr);
+#endif
 
 struct element *element_new     (double     x,
                                  double     y,
@@ -50,6 +65,9 @@ struct element *element_new     (double     x,
                                  double     h,
                                  to_svg_t   to_svg,
                                  move_t     move,
+#ifdef CAIRO
+                                 draw_t     draw,
+#endif
                                  void      *p);
 
 double          find_max_y      (const struct list_head *elements);
