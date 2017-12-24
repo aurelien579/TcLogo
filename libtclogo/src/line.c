@@ -35,7 +35,7 @@ line_draw(const struct element *el,
 
 static void
 line_to_svg(const struct element *el,
-			FILE 				 *out)
+            FILE                 *out)
 {
     struct line_data *data = (struct line_data *) el->private_data;
 
@@ -45,8 +45,8 @@ line_to_svg(const struct element *el,
 
 static void
 line_move(struct element *el,
-		  double 		  x,
-		  double 		  y)
+          double          x,
+          double          y)
 {
     struct line_data *data = (struct line_data *) el->private_data;
     data->x1 += x;
@@ -56,11 +56,11 @@ line_move(struct element *el,
 }
 
 struct element *
-line_new(double 	 x1,
-		 double 	 y1,
-		 double 	 x2,
-		 double 	 y2,
-		 const char *color)
+line_new(double      x1,
+         double      y1,
+         double      x2,
+         double      y2,
+         const char *color)
 {
     struct line_data *data = alloc(struct line_data);
     strncpy(data->color, color, STR_LENGTH);

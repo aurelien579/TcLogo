@@ -3,7 +3,7 @@
 
 #include <tclogo/tclogo.h>
 
-void svg_write	(const struct logo *in,
-				 const char *out);
+void svg_write  (const struct logo *in,
+                 const char *out);
 
 #endif

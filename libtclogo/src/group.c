@@ -38,7 +38,7 @@ group_draw(const struct group *c,
 
 void
 group_to_svg(const struct group *c,
-			 FILE 				*out)
+             FILE               *out)
 {
     for_each(struct element, el, c->elements, {
         element_to_svg(el, out);
@@ -47,7 +47,7 @@ group_to_svg(const struct group *c,
 
 void
 group_define(const struct group *c,
-			 FILE 				*out)
+             FILE               *out)
 {
     fprintf(out, G_OPEN, c->name);
     group_to_svg(c, out);
@@ -56,8 +56,8 @@ group_define(const struct group *c,
 
 void
 group_move_all(struct group *c,
-			   double 		 x,
-			   double		 y)
+               double        x,
+               double        y)
 {
     for_each(struct element, el, c->elements, {
         element_move(el, x, y);
@@ -74,8 +74,8 @@ group_relocate_elements(struct group *c)
 }
 
 void
-group_add(struct group 	 *c,
-		  struct element *el)
+group_add(struct group   *c,
+          struct element *el)
 {
     list_add(&c->elements, el);
 }

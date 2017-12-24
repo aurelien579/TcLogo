@@ -30,7 +30,7 @@ static int functions_count = sizeof(functions) / sizeof(struct function);
 
 struct node *
 node_new(enum node_type type,
-		 unsigned int 	arg_count)
+         unsigned int   arg_count)
 {
     struct node *node = alloc(struct node);
 
@@ -72,7 +72,7 @@ node_free(struct node *node)
 
 void
 node_append(struct node *node,
-		    struct node *new)
+            struct node *new)
 {
     struct node *current = node;
 
@@ -121,7 +121,7 @@ node_print(struct node *node)
 
 int
 node_get_int(const struct node *node,
-			 unsigned int 		i)
+             unsigned int       i)
 {
     assert(i < node->arg_count);
     return node->args[i].val;
@@ -129,7 +129,7 @@ node_get_int(const struct node *node,
 
 char *
 node_get_str(const struct node *node,
-			 unsigned int 		i)
+             unsigned int       i)
 {
     assert(i < node->arg_count);
     return node->args[i].str;
@@ -137,7 +137,7 @@ node_get_str(const struct node *node,
 
 struct node *
 node_get_subnode(const struct node *node,
-				 unsigned int 		i)
+                 unsigned int       i)
 {
     assert(i < node->arg_count);
     return node->args[i].subnode;
@@ -145,8 +145,8 @@ node_get_subnode(const struct node *node,
 
 void
 node_set_int(struct node *node,
-			 unsigned int i,
-			 int 		  val)
+             unsigned int i,
+             int          val)
 {
     assert(i < node->arg_count);
     node->args[i].type = ARG_INT;
@@ -155,8 +155,8 @@ node_set_int(struct node *node,
 
 void
 node_set_str(struct node *node,
-		     unsigned int i,
-		     const char  *str)
+             unsigned int i,
+             const char  *str)
 {
     assert(i < node->arg_count);
     node->args[i].type = ARG_STR;
@@ -166,8 +166,8 @@ node_set_str(struct node *node,
 
 void
 node_set_subnode(struct node *node,
-				 unsigned int i,
-				 struct node *subnode)
+                 unsigned int i,
+                 struct node *subnode)
 {
     assert(i < node->arg_count);
     node->args[i].type = ARG_NODE;

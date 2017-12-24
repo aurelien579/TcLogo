@@ -16,15 +16,15 @@
     } while (0)                                 \
 
 struct list_head {
-    void 			 *data;
+    void             *data;
     struct list_head *next;
 };
 
-struct list_head   *list_new	();
+struct list_head   *list_new    ();
 
-void 				list_add	(struct list_head **head,
-								 void 			   *data);
+void                list_add    (struct list_head **head,
+                                 void              *data);
 
-void 				list_free	(struct list_head *head);
+void                list_free   (struct list_head *head);
 
 #endif

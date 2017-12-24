@@ -22,7 +22,7 @@ rect_draw(const struct element *el,
 
 static void
 rect_to_svg(const struct element *el,
-			FILE 				 *out)
+            FILE                 *out)
 {
     fprintf(out, RECT_SVG,
             el->x, el->y, el->width, el->height);
@@ -30,9 +30,9 @@ rect_to_svg(const struct element *el,
 
 struct element *
 rect_new(double x,
-		 double y,
-		 double width,
-		 double height)
+         double y,
+         double width,
+         double height)
 {
     return element_new(x, y, width, height,
                        rect_to_svg,

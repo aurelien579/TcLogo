@@ -11,7 +11,7 @@ list_new()
 
 void
 list_add(struct list_head **head,
-		 void 			   *data)
+         void              *data)
 {
     struct list_head *new = alloc(struct list_head);
 

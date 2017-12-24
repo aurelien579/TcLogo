@@ -14,7 +14,7 @@
 
 void
 svg_write(const struct logo *logo,
-		  const char 		*out)
+          const char        *out)
 {
     struct group        *root = logo_get_root(logo);
     struct list_head    *groups = logo_get_groups(logo);

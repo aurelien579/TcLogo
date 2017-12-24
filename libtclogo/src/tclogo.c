@@ -24,7 +24,7 @@ struct logo {
     struct group       *current_group;
     struct group       *root;
     struct list_head   *groups;
-    
+
     struct list_head   *step_handlers;
     double              step_delay;
     int                 relocate_at_each_step;
@@ -84,11 +84,11 @@ logo_step(struct logo       *logo,
 {
     node->execute(logo, node);
     execute_step_handlers(logo);
-    
+
     if (logo->relocate_at_each_step) {
         group_relocate_elements(logo->root);
     }
-    
+
     sleep(logo->step_delay);
 }
 

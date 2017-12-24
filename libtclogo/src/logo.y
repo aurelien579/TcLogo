@@ -7,7 +7,7 @@
 
 int
 yyerror(struct node **root,
-	    const char   *msg)
+        const char   *msg)
 {
     fprintf(stderr, "[ERROR] %s\n", msg);
 }
@@ -27,8 +27,8 @@ yywrap()
 
 %union {
     struct node *node_type;
-    int 	     int_type;
-    char	     str_type[STR_LENGTH];
+    int          int_type;
+    char         str_type[STR_LENGTH];
 };
 
 %type <str_type> STR
