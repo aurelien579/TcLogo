@@ -1,5 +1,5 @@
 CC 		= gcc
-CFLAGS 	= -std=c99 -g -I../libtclogo/include \
+CFLAGS 	= -std=c11 -g -I../libtclogo/include \
 		  `pkg-config --cflags gtk+-3.0` -DCAIRO
 
 LIBS	= -L../libtclogo/lib -ltclogo -lm \

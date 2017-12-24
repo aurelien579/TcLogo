@@ -25,17 +25,6 @@ group_new(const char *str)
     return c;
 }
 
-#ifdef CAIRO
-void
-group_draw(const struct group *c,
-           cairo_t            *cr)
-{
-    for_each(struct element, el, c->elements, {
-        element_draw(el, cr);
-    });
-}
-#endif
-
 void
 group_to_svg(const struct group *c,
              FILE               *out)

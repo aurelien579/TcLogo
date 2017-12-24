@@ -17,12 +17,19 @@ struct use_private {
 #ifdef CAIRO
 static void
 use_draw(const struct element *el,
-         cairo_t              *cr)
+         cairo_t              *cr,
+         int                   x,
+         int                   y,
+         draw_callback_t       callback)
 {
     struct use_private *p = (struct use_private *) el->private_data;
-    group_move_all(p->g, el->x, el->y);
-    group_draw(p->g, cr);
-    group_move_all(p->g, -el->x, -el->y);
+    /*group_move_all(p->g, el->x, el->y);
+    group_draw(p->g, cr, x, y);
+    group_move_all(p->g, -el->x, -el->y);*/
+    
+    for_each(struct element, child, p->g->elements, {
+        element_draw(child, cr, x + el->x, y + el->y, callback);
+    });
 }
 #endif
 

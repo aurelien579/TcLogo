@@ -30,14 +30,6 @@ step_handler(const struct logo *logo)
     gtk_widget_queue_draw(GTK_WIDGET(_app->window));
 }
 
-static void *
-thread_1(void *_root)
-{
-    struct node *root = (struct node *) _root;
-    
-    logo_execute(_app->logo, root);
-}
-
 static void
 tclogo_app_execute(TclogoApp  *app,
                    const char *filename)
@@ -48,8 +40,6 @@ tclogo_app_execute(TclogoApp  *app,
     app->logo = logo_new();
     
     tclogo_app_window_set_logo(app->window, app->logo);
-    logo_add_step_handler(app->logo, step_handler);
-    logo_set_step_delay(app->logo, 1); 
     
     tempfd = dup(STDIN_FILENO);
     if (tempfd < 0) {
@@ -76,8 +66,10 @@ tclogo_app_execute(TclogoApp  *app,
         panic("dup2()");
     }
     
+    logo_execute(app->logo, root);
+    
     pthread_t thread;
-    pthread_create(&thread, NULL, thread_1, root);
+    pthread_create(&thread, NULL, tclogo_app_window_draw_thread, app->window);
 }
 
 static void

@@ -18,4 +18,6 @@ void             tclogo_app_window_draw         (TclogoAppWindow   *win,
 
 void             tclogo_app_window_set_logo     (TclogoAppWindow   *win,
                                                  const struct logo *logo);
+                                                 
+void            *tclogo_app_window_draw_thread  (void *_window);
 #endif

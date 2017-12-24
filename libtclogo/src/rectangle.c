@@ -14,9 +14,13 @@
 #ifdef CAIRO
 static void
 rect_draw(const struct element *el,
-          cairo_t              *cr)
+          cairo_t              *cr,
+          int                   x,
+          int                   y,
+          draw_callback_t       callback)
 {
-    cairo_rectangle(cr, el->x, el->y, el->width, el->height);
+    cairo_rectangle(cr, x + el->x, y + el->y, el->width, el->height);
+    callback();
 }
 #endif
 

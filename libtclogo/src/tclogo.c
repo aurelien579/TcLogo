@@ -68,13 +68,12 @@ execute_step_handlers(const struct logo *logo)
 #ifdef CAIRO
 void
 logo_draw(const struct logo *logo,
-          cairo_t           *cr)
+          cairo_t           *cr,
+          draw_callback_t    callback)
 {
-    double min_x = group_min_x(logo->root);
-    double min_y = group_min_y(logo->root);
-    group_move_all(logo->root, -min_x, -min_y);
-    group_draw(logo->root, cr);
-    group_move_all(logo->root, min_x, min_y);
+    for_each(struct element, el, logo->root->elements, {
+        element_draw(el, cr, 0, 0, callback);
+    });
 }
 #endif
 
@@ -83,24 +82,26 @@ logo_step(struct logo       *logo,
           const struct node *node)
 {
     node->execute(logo, node);
-    execute_step_handlers(logo);
+    
+    if (logo->current_group == logo->root) {        
+        execute_step_handlers(logo);
 
-    if (logo->relocate_at_each_step) {
-        group_relocate_elements(logo->root);
+        if (logo->relocate_at_each_step) {
+            group_relocate_elements(logo->root);
+        }
+
+        sleep(logo->step_delay);
     }
-
-    sleep(logo->step_delay);
 }
 
 void
 logo_execute(struct logo        *logo,
              const struct node  *program)
-{
-    while (program) {
-        logo_step(logo, program);
-        program = program->next;
+{    
+    for (const struct node *cur = program; cur; cur = cur->next) {
+        logo_step(logo, cur);
     }
-
+    
     group_relocate_elements(logo->root);
 }
 
@@ -135,16 +136,14 @@ logo_add_step_handler(struct logo    *logo,
 void
 logo_free(struct logo *logo)
 {
-    struct list_head *cur = logo->groups;
     struct group *g;
-
-    while (cur) {
+    
+    for (struct list_head *cur = logo->groups; cur; cur = cur->next) {
         g = (struct group *) cur->data;
         group_free(g);
         cur->data = NULL;
-        cur = cur->next;
     }
-
+    
     list_free(logo->groups);
 
     group_free(logo->root);

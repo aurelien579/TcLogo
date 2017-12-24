@@ -20,11 +20,6 @@ struct group   *group_new               (const char *str);
 
 void            group_free              (struct group *c);
 
-#ifdef CAIRO
-void            group_draw              (const struct group *c,
-                                         cairo_t            *cr);
-#endif
-
 /**
  * Write svg code representing the content of the groups. This function,
  * write svg code for each element in elements.

@@ -22,6 +22,27 @@ list_add(struct list_head **head,
 }
 
 void
+list_add_all(struct list_head **head,
+             struct list_head  *src)
+{
+    for_each(void, data, src, {
+        list_add(head, data);
+    });
+}
+
+int
+list_get_size(struct list_head *head)
+{
+    int size = 0;
+    
+    for_each(void, _, head, {
+        size++;
+    });
+    
+    return size;
+}
+
+void
 list_free(struct list_head *head)
 {
     struct list_head *tmp;

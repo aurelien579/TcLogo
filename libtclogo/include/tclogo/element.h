@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <tclogo/list.h>
+#include <tclogo/tclogo.h>
 
 #ifdef CAIRO
 #include <gdk/gdk.h>
@@ -14,7 +15,7 @@ struct group;
 typedef void (*to_svg_t) (const struct element *, FILE *);
 typedef void (*move_t)   (struct element *, double, double);
 #ifdef CAIRO
-typedef void (*draw_t)   (const struct element *, cairo_t *);
+typedef void (*draw_t)   (const struct element *, cairo_t *, int, int, draw_callback_t);
 #endif
 
 struct element {
@@ -56,7 +57,10 @@ void            element_move    (struct element *el,
                                  
 #ifdef CAIRO
 void            element_draw    (const struct element *el,
-                                 cairo_t              *cr);
+                                 cairo_t              *cr,
+                                 int                   x,
+                                 int                   y,
+                                 draw_callback_t       callback);
 #endif
 
 struct element *element_new     (double     x,

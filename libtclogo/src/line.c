@@ -23,13 +23,16 @@ struct line_data {
 #ifdef CAIRO
 static void
 line_draw(const struct element *el,
-          cairo_t              *cr)
+          cairo_t              *cr,
+          int                   x,
+          int                   y,
+          draw_callback_t       callback)
 {
     struct line_data *data = (struct line_data *) el->private_data;
-    printf("line_draw %f %f %f %f\n", data->x1, data->y1, data->x2, data->y2);
-    cairo_move_to(cr, data->x1, data->y1);
-    cairo_line_to(cr, data->x2, data->y2);
+    cairo_move_to(cr, x + data->x1, y + data->y1);
+    cairo_line_to(cr, x + data->x2, y + data->y2);
     cairo_stroke(cr);
+    callback();
 }
 #endif
 

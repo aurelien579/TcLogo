@@ -60,10 +60,13 @@ find_max_y(const struct list_head *elements)
 
 void
 element_draw(const struct element *el,
-             cairo_t              *cr)
+             cairo_t              *cr,
+             int                   x,
+             int                   y,
+             draw_callback_t       callback)
 {
     if (el->draw) {
-        el->draw(el, cr);
+        el->draw(el, cr, x, y, callback);
     }
 }
 
@@ -111,7 +114,6 @@ element_new(double   x,
     el->height       = h;
     el->to_svg       = to_svg;
     el->move         = move;
-    
 #ifdef CAIRO
     el->draw        = draw;
 #endif    

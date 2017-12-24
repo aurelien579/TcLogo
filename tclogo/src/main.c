@@ -14,7 +14,7 @@ main(int    argc,
     struct node *root;
     struct logo *logo;    
     char *out = "out.svg";
-	
+    
     for (int i = 1; i < argc - 1; i++) {
         if (strcmp("-o", argv[i]) == 0) {
             out = argv[i+1];
