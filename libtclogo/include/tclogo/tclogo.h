@@ -14,15 +14,6 @@ typedef void (*draw_callback_t) (void);
 struct logo      *logo_new              ();
 void              logo_free             (struct logo *logo);
 
-void              logo_add_step_handler (struct logo    *logo,
-                                         step_handler_t  handler);
-
-void              logo_set_step_delay   (struct logo    *logo,
-                                         double          delay);
-
-void              logo_set_relocate_step(struct logo *logo,
-                                         int val);
-
 struct group     *logo_get_group        (const struct logo *logo,
                                          const char        *name);
 

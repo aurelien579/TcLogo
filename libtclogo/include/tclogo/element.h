@@ -14,6 +14,7 @@ struct group;
 
 typedef void (*to_svg_t) (const struct element *, FILE *);
 typedef void (*move_t)   (struct element *, double, double);
+
 #ifdef CAIRO
 typedef void (*draw_t)   (const struct element *, cairo_t *, int, int, draw_callback_t);
 #endif
@@ -29,7 +30,7 @@ struct element {
 #ifdef CAIRO
     draw_t      draw;
 #endif
-    void       *private_data;
+    void       *p;
 };
 
 struct element *line_new        (double      x1,
@@ -43,10 +44,9 @@ struct element *rect_new        (double x,
                                  double width,
                                  double height);
 
-struct element *use_new         (const struct group *grp,
+struct element *group_use_new   (const struct group *grp,
                                  double              x,
                                  double              y);
-
 
 void            element_to_svg  (const struct element *el,
                                  FILE                 *out);

@@ -6,7 +6,7 @@ OBJS 	= $(patsubst %.c, %.o, $(wildcard src/*.c))
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
+$(TARGET): $(OBJS) ../libtclogo/lib/libtclogo.a
 	$(CC) $^ -o $@ $(LIBS)
 
 %.o: %.c

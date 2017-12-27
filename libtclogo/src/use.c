@@ -10,7 +10,7 @@
 
 #define USE_SVG "<use x=\"%f\" y=\"%f\" href=\"#%s\"/>\n"
 
-struct use_private {
+struct group_use {
     const struct group *g;
 };
 
@@ -22,10 +22,7 @@ use_draw(const struct element *el,
          int                   y,
          draw_callback_t       callback)
 {
-    struct use_private *p = (struct use_private *) el->private_data;
-    /*group_move_all(p->g, el->x, el->y);
-    group_draw(p->g, cr, x, y);
-    group_move_all(p->g, -el->x, -el->y);*/
+    struct group_use *p = (struct group_use *) el->p;
     
     for_each(struct element, child, p->g->elements, {
         element_draw(child, cr, x + el->x, y + el->y, callback);
@@ -37,16 +34,17 @@ static void
 use_to_svg(const struct element *el,
            FILE                 *out)
 {
-    struct use_private *p = (struct use_private *) el->private_data;
+    struct group_use *p = (struct group_use *) el->p;
+    
     fprintf(out, USE_SVG, el->x, el->y, p->g->name);
 }
 
 struct element *
-use_new(const struct group *group,
-        double              x,
-        double              y)
+group_use_new(const struct group *group,
+              double              x,
+              double              y)
 {
-    struct use_private *p = alloc(struct use_private);
+    struct group_use *p = alloc(struct group_use);
     p->g = group;
     
     return element_new(x,

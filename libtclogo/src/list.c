@@ -22,6 +22,22 @@ list_add(struct list_head **head,
 }
 
 void
+list_append(struct list_head **head,
+            void              *data)
+{
+    struct list_head *new = alloc(struct list_head);
+    
+    new->data = data;
+    new->next = NULL;
+    
+    while (*head) {
+        head = &((*head)->next);
+    }
+    
+    *head = new;
+}
+
+void
 list_add_all(struct list_head **head,
              struct list_head  *src)
 {
@@ -35,9 +51,10 @@ list_get_size(struct list_head *head)
 {
     int size = 0;
     
-    for_each(void, _, head, {
+    while (head) {
+        head = head->next;
         size++;
-    });
+    }
     
     return size;
 }

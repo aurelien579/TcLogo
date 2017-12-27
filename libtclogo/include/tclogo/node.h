@@ -75,4 +75,7 @@ void            node_set_subnode(struct node *node,
                                  unsigned int i,
                                  struct node *subnode);
 
+int             parse_file      (const char   *filename,
+                                 struct node **root);
+
 #endif

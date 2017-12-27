@@ -20,6 +20,8 @@ rect_draw(const struct element *el,
           draw_callback_t       callback)
 {
     cairo_rectangle(cr, x + el->x, y + el->y, el->width, el->height);
+    cairo_fill(cr);
+    
     callback();
 }
 #endif

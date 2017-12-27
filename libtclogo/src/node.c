@@ -1,7 +1,11 @@
 #include <tclogo/node.h>
 #include <tclogo/utils.h>
+#include <tclogo/constants.h>
+#include "logo.tab.h"
 
 #include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -172,5 +176,39 @@ node_set_subnode(struct node *node,
     assert(i < node->arg_count);
     node->args[i].type = ARG_NODE;
     node->args[i].subnode = subnode;
+}
+
+int
+parse_file(const char   *filename,
+           struct node **root)
+{
+    int tempfd;
+        
+    tempfd = dup(STDIN_FILENO);
+    if (tempfd < 0) {
+        return -1;
+    }
+    
+    if (close(STDIN_FILENO) < 0) {
+        return -1;
+    }
+    
+    if (open(filename, O_RDONLY) != STDIN_FILENO) {
+        return -1;
+    }
+    
+    if (yyparse(root) < 0) {
+        return -1;
+    }
+        
+    if (close(STDIN_FILENO) < 0) {
+        return -1;
+    }
+    
+    if (dup2(tempfd, STDIN_FILENO) < 0) {
+        return -1;
+    }
+    
+    return 0;
 }
 

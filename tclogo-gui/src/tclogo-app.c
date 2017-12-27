@@ -1,11 +1,11 @@
 #include <gtk/gtk.h>
 
 #include <stdio.h>
-#include <fcntl.h>
+#include <time.h>
 
 #include <tclogo/tclogo.h>
-#include <tclogo/constants.h>
-#include <tclogo/logo.tab.h>
+#include <tclogo/node.h>
+#include <tclogo/group.h>
 
 #include <pthread.h>
 
@@ -18,6 +18,7 @@ struct _TclogoApp
     GtkApplication   parent;
     TclogoAppWindow *window;
     struct logo     *logo;
+    cairo_surface_t *surface;
 };
 
 G_DEFINE_TYPE(TclogoApp, tclogo_app, GTK_TYPE_APPLICATION);
@@ -25,9 +26,31 @@ G_DEFINE_TYPE(TclogoApp, tclogo_app, GTK_TYPE_APPLICATION);
 static TclogoApp *_app;
 
 static void
-step_handler(const struct logo *logo)
+draw_callback()
 {
-    gtk_widget_queue_draw(GTK_WIDGET(_app->window));
+    tclogo_app_window_draw_surface(_app->window, _app->surface);
+    
+    struct timespec t;
+    t.tv_sec = 0;
+    t.tv_nsec = 500000000L; // 0.5 secs
+    
+    nanosleep(&t, NULL);
+}
+
+static void *
+draw_thread(void *_app)
+{
+    TclogoApp *app = (TclogoApp *) _app;
+    
+    struct group *root = logo_get_root(app->logo);
+    app->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+                                              group_width(root),
+                                              group_height(root));
+    
+    cairo_t *cr = cairo_create(app->surface);
+    logo_draw(app->logo, cr, draw_callback);
+    
+    return NULL;
 }
 
 static void
@@ -35,41 +58,17 @@ tclogo_app_execute(TclogoApp  *app,
                    const char *filename)
 {
     struct node *root;
-    int tempfd;
     
     app->logo = logo_new();
-    
-    tclogo_app_window_set_logo(app->window, app->logo);
-    
-    tempfd = dup(STDIN_FILENO);
-    if (tempfd < 0) {
-        panic("dup()");
-    }
-    
-    if (close(STDIN_FILENO) < 0) {
-        panic("close()");
-    }
-    
-    if (open(filename, O_RDONLY) != STDIN_FILENO) {
-        panic("open()");
-    }
-    
-    if (yyparse(&root) < 0) {
-        panic("yyparse()");
-    }
         
-    if (close(STDIN_FILENO) < 0) {
-        panic("close()");
-    }
-    
-    if (dup2(tempfd, STDIN_FILENO) < 0) {
-        panic("dup2()");
+    if (parse_file(filename, &root) < 0) {
+        panic("parse_file()");
     }
     
     logo_execute(app->logo, root);
     
     pthread_t thread;
-    pthread_create(&thread, NULL, tclogo_app_window_draw_thread, app->window);
+    pthread_create(&thread, NULL, draw_thread, app);
 }
 
 static void
@@ -125,8 +124,9 @@ tclogo_app_init(TclogoApp *app)
 }
 
 static void
-tclogo_app_activate(TclogoApp *app)
+tclogo_app_activate(GApplication *_app_)
 {
+    TclogoApp *app = (TclogoApp *) _app_;
     TclogoAppWindow *win;
     
     _app = app;

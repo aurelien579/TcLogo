@@ -57,7 +57,6 @@ find_max_y(const struct list_head *elements)
 }
 
 #ifdef CAIRO
-
 void
 element_draw(const struct element *el,
              cairo_t              *cr,
@@ -69,7 +68,6 @@ element_draw(const struct element *el,
         el->draw(el, cr, x, y, callback);
     }
 }
-
 #endif
 
 void
@@ -118,7 +116,7 @@ element_new(double   x,
     el->draw        = draw;
 #endif    
 
-    el->private_data = private;
+    el->p = private;
 
     return el;
 }

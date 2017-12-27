@@ -20,15 +20,25 @@ struct logo {
     double              x;                  /* Current x */
     double              y;                  /* Current y */
     double              angle;              /* Current angle in radians */
-    char                color[10];          /* Current color */
+    char               *color;              /* Current color */
     struct group       *current_group;
     struct group       *root;
     struct list_head   *groups;
-
-    struct list_head   *step_handlers;
-    double              step_delay;
-    int                 relocate_at_each_step;
 };
+
+static void
+logo_set_color(struct logo *logo,
+               const char *color)
+{
+    int size = strlen(color);
+    
+    if (logo->color) {
+        free(logo->color);
+    }
+    
+    logo->color = alloc_n(char, size + 1);
+    strncpy(logo->color, color, size);
+}
 
 struct group *
 logo_get_group(const struct logo *logo,
@@ -43,28 +53,6 @@ logo_get_group(const struct logo *logo,
     return NULL;
 }
 
-void
-logo_set_step_delay(struct logo *logo,
-                    double       delay)
-{
-    logo->step_delay = delay;
-}
-
-void
-logo_set_relocate_step(struct logo *logo,
-                       int val)
-{
-    logo->relocate_at_each_step = val;
-}
-
-static void
-execute_step_handlers(const struct logo *logo)
-{
-    for_each(step_handler_t, handler, logo->step_handlers, {
-        ((step_handler_t) handler)(logo);
-    });
-}
-
 #ifdef CAIRO
 void
 logo_draw(const struct logo *logo,
@@ -77,29 +65,12 @@ logo_draw(const struct logo *logo,
 }
 #endif
 
-static void
-logo_step(struct logo       *logo,
-          const struct node *node)
-{
-    node->execute(logo, node);
-    
-    if (logo->current_group == logo->root) {        
-        execute_step_handlers(logo);
-
-        if (logo->relocate_at_each_step) {
-            group_relocate_elements(logo->root);
-        }
-
-        sleep(logo->step_delay);
-    }
-}
-
 void
 logo_execute(struct logo        *logo,
              const struct node  *program)
-{    
+{
     for (const struct node *cur = program; cur; cur = cur->next) {
-        logo_step(logo, cur);
+        cur->execute(logo, cur);
     }
     
     group_relocate_elements(logo->root);
@@ -116,22 +87,12 @@ logo_new()
     logo->groups        = list_new();
     logo->root          = group_new("root");
     logo->current_group = logo->root;
-    logo->step_handlers = list_new();
-    logo->step_delay    = 0;
-    logo->relocate_at_each_step = 0;
-
-    strncpy(logo->color, DEFAULT_COLOR, 9);
+    logo->color         = NULL;
+    
+    logo_set_color(logo, DEFAULT_COLOR);
 
     return logo;
 }
-
-void
-logo_add_step_handler(struct logo    *logo,
-                      step_handler_t  handler)
-{
-    list_add(&logo->step_handlers, handler);
-}
-
 
 void
 logo_free(struct logo *logo)
@@ -142,6 +103,10 @@ logo_free(struct logo *logo)
         g = (struct group *) cur->data;
         group_free(g);
         cur->data = NULL;
+    }
+    
+    if (logo->color) {
+        free(logo->color);
     }
     
     list_free(logo->groups);
@@ -184,7 +149,7 @@ execute_group_end(struct logo       *logo,
     logo->x = logo->saved_x;
     logo->y = logo->saved_y;
     logo->angle = logo->saved_angle;
-
+    
     list_add(&logo->groups, logo->current_group);
     group_relocate_elements(logo->current_group);
     logo->current_group = logo->root;
@@ -197,7 +162,7 @@ execute_use(struct logo        *logo,
     struct group *src  = logo_get_group(logo, node_get_str(node, 0));
     assert(src);
 
-    group_add(logo->root, use_new(src, logo->x, logo->y));
+    group_add(logo->root, group_use_new(src, logo->x, logo->y));
 }
 
 void
@@ -256,14 +221,14 @@ void
 execute_left(struct logo       *logo,
              const struct node *node)
 {
-    logo->angle -= ((double)node_get_int(node, 0)) * (PI/180.0);
+    logo->angle -= ((double) node_get_int(node, 0)) * (PI/180.0);
 }
 
 void
 execute_right(struct logo       *logo,
               const struct node *node)
 {
-    logo->angle += ((double)node_get_int(node, 0)) * (PI/180.0);
+    logo->angle += ((double) node_get_int(node, 0)) * (PI/180.0);
 }
 
 void
@@ -277,7 +242,7 @@ execute_repeat(struct logo       *logo,
         cur = program;
 
         while (cur) {
-            logo_step(logo, cur);
+            cur->execute(logo, cur);
             cur = cur->next;
         }
     }
@@ -287,6 +252,5 @@ void
 execute_color(struct logo        *logo,
               const struct node  *node)
 {
-    strncpy(logo->color, node_get_str(node, 0), STR_LENGTH);
+    logo_set_color(logo, node_get_str(node, 0));
 }
-

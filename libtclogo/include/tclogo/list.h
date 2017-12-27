@@ -25,6 +25,9 @@ struct list_head   *list_new    ();
 void                list_add    (struct list_head **head,
                                  void              *data);
 
+void                list_append (struct list_head **head,
+                                 void              *data);
+
 void                list_add_all(struct list_head **head,
                                  struct list_head  *src);
                                  

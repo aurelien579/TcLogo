@@ -12,12 +12,7 @@ G_DECLARE_FINAL_TYPE(TclogoAppWindow, tclogo_app_window, TCLOGO,
                      APP_WINDOW, GtkApplicationWindow)
 
 TclogoAppWindow *tclogo_app_window_new          (TclogoApp *app);
-
-void             tclogo_app_window_draw         (TclogoAppWindow   *win,
-                                                 const struct logo *logo);
-
-void             tclogo_app_window_set_logo     (TclogoAppWindow   *win,
-                                                 const struct logo *logo);
                                                  
-void            *tclogo_app_window_draw_thread  (void *_window);
+void             tclogo_app_window_draw_surface (TclogoAppWindow *win,
+                                                 cairo_surface_t *surface);
 #endif

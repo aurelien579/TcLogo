@@ -110,7 +110,7 @@ void
 group_free(struct group *c)
 {
     for_each(struct element, el, c->elements, {
-        free(el->private_data);
+        free(el->p);
     });
 
     list_free(c->elements);
