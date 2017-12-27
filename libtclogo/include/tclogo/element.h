@@ -20,17 +20,18 @@ typedef void (*draw_t)   (const struct element *, cairo_t *, int, int, draw_call
 #endif
 
 struct element {
-    double      x;
-    double      y;
-    double      width;
-    double      height;
+    unsigned int linenumber;
+    double       x;
+    double       y;
+    double       width;
+    double       height;
     
-    to_svg_t    to_svg;
-    move_t      move;
+    to_svg_t     to_svg;
+    move_t       move;
 #ifdef CAIRO
-    draw_t      draw;
+    draw_t       draw;
 #endif
-    void       *p;
+    void        *p;
 };
 
 struct element *line_new        (double      x1,
@@ -73,6 +74,12 @@ struct element *element_new     (double     x,
                                  draw_t     draw,
 #endif
                                  void      *p);
+                                 
+
+void            element_set_linenumber (struct element *el,
+                                        unsigned int    linenumber);
+
+unsigned int    element_get_linenumber (const struct element *el);
 
 double          find_max_y      (const struct list_head *elements);
 

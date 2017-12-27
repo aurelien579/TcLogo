@@ -172,7 +172,8 @@ execute_rectangle(struct logo        *logo,
     struct element *rect = rect_new(logo->x, logo->y,
                                     node_get_int(node, 0),
                                     node_get_int(node, 1));
-
+    
+    element_set_linenumber(rect, node->line);
     group_add(logo->current_group, rect);
 }
 
@@ -210,6 +211,8 @@ execute_forward(struct logo        *logo,
 
     struct element *line = line_new(logo->x, logo->y,
                                     new_x, new_y, logo->color);
+
+    element_set_linenumber(line, node->line);
 
     group_add(logo->current_group, line);
 

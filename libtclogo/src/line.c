@@ -34,7 +34,7 @@ line_draw(const struct element *el,
     cairo_line_to(cr, x + line->x2, y + line->y2);
     cairo_stroke(cr);
     
-    callback();
+    callback(el->linenumber);
 }
 #endif
 

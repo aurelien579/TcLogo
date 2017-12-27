@@ -15,4 +15,15 @@ TclogoAppWindow *tclogo_app_window_new          (TclogoApp *app);
                                                  
 void             tclogo_app_window_draw_surface (TclogoAppWindow *win,
                                                  cairo_surface_t *surface);
+
+void             tclogo_app_window_set_app      (TclogoAppWindow *win,
+                                                 TclogoApp       *app);
+
+void             tclogo_app_window_set_text     (TclogoAppWindow *win,
+                                                 const gchar *text,
+                                                 gsize size);
+                                                 
+void             tclogo_app_window_highlight    (TclogoAppWindow *win,
+                                                 unsigned int     line);
+
 #endif

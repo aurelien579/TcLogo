@@ -18,6 +18,7 @@ struct _TclogoApp
     GtkApplication   parent;
     TclogoAppWindow *window;
     struct logo     *logo;
+    double           delay_secs;
     cairo_surface_t *surface;
 };
 
@@ -26,14 +27,17 @@ G_DEFINE_TYPE(TclogoApp, tclogo_app, GTK_TYPE_APPLICATION);
 static TclogoApp *_app;
 
 static void
-draw_callback()
+draw_callback(unsigned int line)
 {
     tclogo_app_window_draw_surface(_app->window, _app->surface);
+    tclogo_app_window_highlight(_app->window, line);
     
     struct timespec t;
-    t.tv_sec = 0;
-    t.tv_nsec = 500000000L; // 0.5 secs
+    t.tv_sec = (long) _app->delay_secs;
     
+    long long milli_secs = ((long long) (_app->delay_secs * 1000)) - (t.tv_sec * 1000);
+    t.tv_nsec = milli_secs * 1000 * 1000;
+
     nanosleep(&t, NULL);
 }
 
@@ -104,6 +108,14 @@ open_activated(GSimpleAction *action,
         GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
         filename = gtk_file_chooser_get_filename(chooser);
         
+        gchar *contents;
+        gsize size;
+        
+        if (!g_file_get_contents(filename, &contents, &size, NULL)) {
+            panic("g_file_get_contents()");
+        }
+        
+        tclogo_app_window_set_text(_app->window, contents, size);
         tclogo_app_execute(_app, filename);
         
         g_free(filename);
@@ -126,14 +138,18 @@ tclogo_app_init(TclogoApp *app)
 static void
 tclogo_app_activate(GApplication *_app_)
 {
-    TclogoApp *app = (TclogoApp *) _app_;
+    TclogoApp *app = TCLOGO_APP(_app_);
     TclogoAppWindow *win;
     
     _app = app;
     
-    app->logo = NULL;
-    win = tclogo_app_window_new(TCLOGO_APP(app));
+    win = tclogo_app_window_new(app);
+    
     app->window = win;
+    app->logo = NULL;
+    app->delay_secs = 1;
+    
+    tclogo_app_window_set_app(app->window, app);
     
     gtk_window_present(GTK_WINDOW(win));
 }
@@ -160,6 +176,14 @@ tclogo_app_class_init(TclogoAppClass *class)
 {
     G_APPLICATION_CLASS(class)->activate = tclogo_app_activate;
     G_APPLICATION_CLASS(class)->startup = tclogo_app_startup;
+}
+
+void
+tclogo_app_set_delay(TclogoApp *app,
+                     double secs)
+{
+    printf("New delay : %f\n", secs);
+    app->delay_secs = secs;
 }
 
 TclogoApp *

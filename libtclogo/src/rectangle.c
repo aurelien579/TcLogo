@@ -22,7 +22,7 @@ rect_draw(const struct element *el,
     cairo_rectangle(cr, x + el->x, y + el->y, el->width, el->height);
     cairo_fill(cr);
     
-    callback();
+    callback(el->linenumber);
 }
 #endif
 

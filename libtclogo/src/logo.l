@@ -4,6 +4,8 @@
 #include <tclogo/constants.h>
 #include <tclogo/node.h>
 #include <tclogo/logo.tab.h>
+
+unsigned int _current_line_ = 0;
 %}
 
 %%
@@ -31,6 +33,6 @@
 "\""            return STR_DELEMITER;
 "["             return '[';
 "]"             return ']';
-\n              /* Skip whitespaces */
+\n              _current_line_++;
 [ \t]           /* Skip whitespaces */
 %%

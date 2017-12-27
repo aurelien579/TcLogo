@@ -92,6 +92,18 @@ element_move(struct element *el,
     }
 }
 
+void
+element_set_linenumber(struct element *el, unsigned int linenumber)
+{
+    el->linenumber = linenumber;
+}
+
+unsigned int
+element_get_linenumber(const struct element *el)
+{
+    return el->linenumber;
+}
+
 struct element *
 element_new(double   x,
             double   y,
@@ -105,7 +117,7 @@ element_new(double   x,
             void    *private)
 {
     struct element *el = alloc(struct element);
-
+    
     el->x            = x;
     el->y            = y;
     el->width        = w;

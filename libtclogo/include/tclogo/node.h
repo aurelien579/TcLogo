@@ -40,12 +40,17 @@ struct node {
     enum node_type         type;
     struct arg            *args;        /* Array of args */
     unsigned int           arg_count;
+    unsigned int           line;
+    
     struct node           *next;
+        
     void (*execute) (struct logo*, const struct node*);
+    
 };
 
 struct node    *node_new        (enum node_type type,
-                                 unsigned int arg_count);
+                                 unsigned int   arg_count,
+                                 unsigned int   line);
 
 void            node_free       (struct node *p);
 

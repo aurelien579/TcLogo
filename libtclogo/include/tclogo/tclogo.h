@@ -9,7 +9,7 @@ struct node;
 struct logo;
 
 typedef void (*step_handler_t) (const struct logo *logo);
-typedef void (*draw_callback_t) (void);
+typedef void (*draw_callback_t) (unsigned int);
 
 struct logo      *logo_new              ();
 void              logo_free             (struct logo *logo);

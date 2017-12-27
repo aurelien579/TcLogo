@@ -34,7 +34,8 @@ static int functions_count = sizeof(functions) / sizeof(struct function);
 
 struct node *
 node_new(enum node_type type,
-         unsigned int   arg_count)
+         unsigned int   arg_count,
+         unsigned int   line)
 {
     struct node *node = alloc(struct node);
 
@@ -42,7 +43,8 @@ node_new(enum node_type type,
     node->args = alloc_n(struct arg, arg_count);
     node->arg_count = arg_count;
     node->next = NULL;
-
+    node->line = line;
+    
     for (int i = 0; i < functions_count; i++) {
         if (functions[i].node_type == type) {
             node->execute = functions[i].f;

@@ -18,6 +18,8 @@ yywrap()
     return 1;
 }
 
+extern unsigned int _current_line_;
+
 %}
 
 %parse-param { struct node **root }
@@ -49,43 +51,43 @@ PROG: INST {
 }
 
 INST: FORWARD NUMBER {
-    $$ = node_new(NODE_FORWARD, 1);
+    $$ = node_new(NODE_FORWARD, 1, _current_line_);
     node_set_int($$, 0, $2);
 } | LEFT NUMBER {
-    $$ = node_new(NODE_LEFT, 1);
+    $$ = node_new(NODE_LEFT, 1, _current_line_);
     node_set_int($$, 0, $2);
 } | RIGHT NUMBER {
-    $$ = node_new(NODE_RIGHT, 1);
+    $$ = node_new(NODE_RIGHT, 1, _current_line_);
     node_set_int($$, 0, $2);
 } | REPEAT NUMBER '[' PROG ']' {
-    $$ = node_new(NODE_REPEAT, 2);
+    $$ = node_new(NODE_REPEAT, 2, _current_line_);
     node_set_int($$, 0, $2);
     node_set_subnode($$, 1, $4);
 } | COLOR STR_DELEMITER STR STR_DELEMITER {
-    $$ = node_new(NODE_COLOR, 1);
+    $$ = node_new(NODE_COLOR, 1, _current_line_);
     node_set_str($$, 0, $3);
 } | MOVE NUMBER {
-    $$ = node_new(NODE_MOVE, 1);
+    $$ = node_new(NODE_MOVE, 1, _current_line_);
     node_set_int($$, 0, $2);
 } | SET_ANGLE NUMBER {
-    $$ = node_new(NODE_SET_ANGLE, 1);
+    $$ = node_new(NODE_SET_ANGLE, 1, _current_line_);
     node_set_int($$, 0, $2);
 } | USE STR {
-    $$ = node_new(NODE_USE, 1);
+    $$ = node_new(NODE_USE, 1,_current_line_);
     node_set_str($$, 0, $2);
 } | MOVE_TO NUMBER NUMBER {
-    $$ = node_new(NODE_MOVE_TO, 2);
+    $$ = node_new(NODE_MOVE_TO, 2, _current_line_);
     node_set_int($$, 0, $2);
     node_set_int($$, 1, $3);
 } | RECTANGLE NUMBER NUMBER {
-    $$ = node_new(NODE_RECTANGLE, 2);
+    $$ = node_new(NODE_RECTANGLE, 2, _current_line_);
     node_set_int($$, 0, $2);
     node_set_int($$, 1, $3);
 } | GROUP_BEGIN STR {
-    $$ = node_new(NODE_GROUP_BEGIN, 1);
+    $$ = node_new(NODE_GROUP_BEGIN, 1, _current_line_);
     node_set_str($$, 0, $2);
 } | GROUP_END {
-    $$ = node_new(NODE_GROUP_END, 0);
+    $$ = node_new(NODE_GROUP_END, 0, _current_line_);
 }
 
 %%
