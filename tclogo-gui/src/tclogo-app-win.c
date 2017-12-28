@@ -1,5 +1,7 @@
 #include <gtk/gtk.h>
 
+#include <pthread.h>
+
 #include "tclogo-app-win.h"
 
 struct _TclogoAppWindow

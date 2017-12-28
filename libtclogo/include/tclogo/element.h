@@ -12,28 +12,6 @@
 struct element;
 struct group;
 
-typedef void (*to_svg_t) (const struct element *, FILE *);
-typedef void (*move_t)   (struct element *, double, double);
-
-#ifdef CAIRO
-typedef void (*draw_t)   (const struct element *, cairo_t *, int, int, draw_callback_t);
-#endif
-
-struct element {
-    unsigned int linenumber;
-    double       x;
-    double       y;
-    double       width;
-    double       height;
-    
-    to_svg_t     to_svg;
-    move_t       move;
-#ifdef CAIRO
-    draw_t       draw;
-#endif
-    void        *p;
-};
-
 struct element *line_new        (double      x1,
                                  double      y1,
                                  double      x2,
@@ -49,6 +27,8 @@ struct element *group_use_new   (const struct group *grp,
                                  double              x,
                                  double              y);
 
+void            element_free    (struct element *el);
+
 void            element_to_svg  (const struct element *el,
                                  FILE                 *out);
                              
@@ -62,19 +42,7 @@ void            element_draw    (const struct element *el,
                                  int                   x,
                                  int                   y,
                                  draw_callback_t       callback);
-#endif
-
-struct element *element_new     (double     x,
-                                 double     y,
-                                 double     w,
-                                 double     h,
-                                 to_svg_t   to_svg,
-                                 move_t     move,
-#ifdef CAIRO
-                                 draw_t     draw,
-#endif
-                                 void      *p);
-                                 
+#endif                               
 
 void            element_set_linenumber (struct element *el,
                                         unsigned int    linenumber);

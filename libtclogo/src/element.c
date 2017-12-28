@@ -2,11 +2,46 @@
 #include <gdk/gdk.h>
 #endif
 
+#include <tclogo/group.h>
 #include <tclogo/element.h>
 #include <tclogo/utils.h>
+#include <tclogo/list.h>
 
+#include <string.h>
 #include <stdlib.h>
 #include <float.h>
+
+#define USE_SVG  "<use x=\"%f\" y=\"%f\" href=\"#%s\"/>\n"
+#define RECT_SVG "<rect x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\"/>\n"
+#define LINE_SVG "<line x1=\"%f\" y1=\"%f\" x2=\"%f\" y2=\"%f\" stroke=\"%s\"/>\n"
+
+enum el_type {
+    ELEMENT_TYPE_LINE,
+    ELEMENT_TYPE_USE,
+    ELEMENT_TYPE_RECT
+};
+
+struct line_data {
+    char *color;
+};
+
+struct use_data {
+    const struct group *group;
+};
+
+struct element {
+    enum el_type    type;
+    unsigned int    linenumber;
+    double          x;
+    double          y;
+    double          width;
+    double          height;
+    
+    union {
+        struct line_data    *line_data;
+        struct use_data     *use_data;
+    };
+};
 
 double
 find_min_x(const struct list_head *elements)
@@ -64,8 +99,26 @@ element_draw(const struct element *el,
              int                   y,
              draw_callback_t       callback)
 {
-    if (el->draw) {
-        el->draw(el, cr, x, y, callback);
+    switch (el->type)
+    {
+    case ELEMENT_TYPE_LINE:
+        cairo_move_to(cr, x + el->x, y + el->y);
+        cairo_line_to(cr, x + el->x + el->width, y + el->y + el->height);
+        cairo_stroke(cr);
+        break;
+    case ELEMENT_TYPE_RECT:
+        cairo_rectangle(cr, x + el->x, y + el->y, el->width, el->height);
+        cairo_fill(cr);
+        break;
+    case ELEMENT_TYPE_USE:
+        for_each(struct element, cur_el, el->use_data->group->elements, {
+            element_draw(cur_el, cr, x + el->x, y + el->y, callback);
+        });
+        break;
+    }
+    
+    if (el->type != ELEMENT_TYPE_USE) {
+        callback(el->linenumber);
     }
 }
 #endif
@@ -74,8 +127,22 @@ void
 element_to_svg(const struct element *el,
                FILE                 *out)
 {
-    if (el->to_svg) {
-        el->to_svg(el, out);
+    switch (el->type) {
+    case ELEMENT_TYPE_LINE:
+        fprintf(out,
+                LINE_SVG,
+                el->x,
+                el->y,
+                el->x + el->width,
+                el->y + el->height,
+                el->line_data->color);
+        break;
+    case ELEMENT_TYPE_RECT:
+        fprintf(out, RECT_SVG, el->x, el->y, el->width, el->height);
+        break;
+    case ELEMENT_TYPE_USE:
+        fprintf(out, USE_SVG, el->x, el->y, el->use_data->group->name);
+        break;
     }
 }
 
@@ -86,14 +153,11 @@ element_move(struct element *el,
 {
     el->x += x;
     el->y += y;
-
-    if (el->move) {
-        el->move(el, x, y);
-    }
 }
 
 void
-element_set_linenumber(struct element *el, unsigned int linenumber)
+element_set_linenumber(struct element  *el,
+                       unsigned int     linenumber)
 {
     el->linenumber = linenumber;
 }
@@ -104,31 +168,98 @@ element_get_linenumber(const struct element *el)
     return el->linenumber;
 }
 
-struct element *
-element_new(double   x,
-            double   y,
-            double   w,
-            double   h,
-            to_svg_t to_svg,
-            move_t   move,
-#ifdef CAIRO
-            draw_t   draw,
-#endif
-            void    *private)
+static struct element *
+element_new(enum el_type type,
+            double       x,
+            double       y,
+            double       w,
+            double       h)
 {
     struct element *el = alloc(struct element);
     
-    el->x            = x;
-    el->y            = y;
-    el->width        = w;
-    el->height       = h;
-    el->to_svg       = to_svg;
-    el->move         = move;
-#ifdef CAIRO
-    el->draw        = draw;
-#endif    
-
-    el->p = private;
+    el->type    = type;
+    el->x       = x;
+    el->y       = y;
+    el->width   = w;
+    el->height  = h;
 
     return el;
+}
+
+struct element *
+line_new(double      x1,
+         double      y1, 
+         double      x2,
+         double      y2,
+         const char *color)
+{
+    struct line_data *data;
+    struct element *el;
+    size_t size;
+    double x, y, w, h;
+    
+    size = strlen(color);
+    
+    data = alloc(struct line_data);
+    
+    data->color = alloc_n(char, size + 1);    
+    strncpy(data->color, color, size);
+
+    x = min(x1, x2);
+    y = min(y1, y2);
+    w = max(x1, x2) - x;
+    h = max(y1, y2) - y;
+    
+    el = element_new(ELEMENT_TYPE_LINE, x, y, w, h);
+    el->line_data = data;
+    
+    return el;
+}
+
+struct element *
+rect_new(double x,
+         double y,
+         double width,
+         double height)
+{
+    return element_new(ELEMENT_TYPE_RECT, x, y, width, height);
+}
+
+struct element *
+group_use_new(const struct group    *group,
+              double                 x,
+              double                 y)
+{
+    struct use_data *data;
+    struct element *el;
+    
+    data = alloc(struct use_data);
+    data->group = group;
+    
+    el = element_new(ELEMENT_TYPE_USE,
+                     x,
+                     y,
+                     group_width(group),
+                     group_height(group));
+    el->use_data = data;
+    
+    return el;
+}
+
+void
+element_free(struct element *el)
+{
+    switch (el->type) {
+    case ELEMENT_TYPE_LINE:
+        free(el->line_data->color);
+        free(el->line_data);
+        break;
+    case ELEMENT_TYPE_USE:
+        free(el->use_data);
+        break;
+    case ELEMENT_TYPE_RECT:
+        break;
+    }
+    
+    free(el);
 }

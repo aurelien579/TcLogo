@@ -25,19 +25,24 @@ struct _TclogoApp
 G_DEFINE_TYPE(TclogoApp, tclogo_app, GTK_TYPE_APPLICATION);
 
 static TclogoApp *_app;
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void
 draw_callback(unsigned int line)
 {
+    pthread_mutex_lock(&mutex);
+
     tclogo_app_window_draw_surface(_app->window, _app->surface);
     tclogo_app_window_highlight(_app->window, line);
+    
+    pthread_mutex_unlock(&mutex);
     
     struct timespec t;
     t.tv_sec = (long) _app->delay_secs;
     
     long long milli_secs = ((long long) (_app->delay_secs * 1000)) - (t.tv_sec * 1000);
     t.tv_nsec = milli_secs * 1000 * 1000;
-
+    
     nanosleep(&t, NULL);
 }
 

@@ -1,6 +1,6 @@
 CC 		= gcc
 CFLAGS 	= -std=c11 -g -I../libtclogo/include \
-		  `pkg-config --cflags gtk+-3.0` -DCAIRO -Wall -D_POSIX_C_SOURCE=199309L
+		  `pkg-config --cflags gtk+-3.0` -DCAIRO -Wall -D_POSIX_C_SOURCE=199309L -pg
 
 LIBS	= -L../libtclogo/lib -ltclogo-cairo -lm \
 		  `pkg-config --libs gtk+-3.0` -lpthread
