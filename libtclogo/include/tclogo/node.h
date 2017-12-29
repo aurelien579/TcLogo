@@ -44,8 +44,7 @@ struct node {
     
     struct node           *next;
         
-    void (*execute) (struct logo*, const struct node*);
-    
+    struct element * (*execute) (struct logo*, const struct node*);
 };
 
 struct node    *node_new        (enum node_type type,

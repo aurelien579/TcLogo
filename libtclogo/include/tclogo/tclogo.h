@@ -5,14 +5,22 @@
 #include <gdk/gdk.h>
 #endif
 
+struct element;
+struct group;
 struct node;
 struct logo;
 
-typedef void (*step_handler_t) (const struct logo *logo);
+typedef void (*handler_t)      (const struct group   *current_group,
+                                const struct node    *node,
+                                const struct element *element);
+
 typedef void (*draw_callback_t) (unsigned int);
 
 struct logo      *logo_new              ();
 void              logo_free             (struct logo *logo);
+
+void              logo_set_handler      (struct logo *logo,
+                                         handler_t    handler);
 
 struct group     *logo_get_group        (const struct logo *logo,
                                          const char        *name);
@@ -30,40 +38,40 @@ void              logo_draw             (const struct logo *logo,
 void              logo_execute          (struct logo       *logo,
                                          const struct node *program);
 
-void              execute_forward       (struct logo       *logo,
+struct element   *execute_forward       (struct logo       *logo,
                                          const struct node *node);
 
-void              execute_repeat        (struct logo       *logo,
+struct element   *execute_repeat        (struct logo       *logo,
                                          const struct node *node);
 
-void              execute_right         (struct logo       *logo,
+struct element   *execute_right         (struct logo       *logo,
                                          const struct node *node);
 
-void              execute_left          (struct logo       *logo,
+struct element   *execute_left          (struct logo       *logo,
                                          const struct node *node);
 
-void              execute_color         (struct logo       *logo,
+struct element   *execute_color         (struct logo       *logo,
                                          const struct node *node);
 
-void              execute_move          (struct logo       *logo,
+struct element   *execute_move          (struct logo       *logo,
                                          const struct node *node);
 
-void              execute_set_angle     (struct logo       *logo,
+struct element   *execute_set_angle     (struct logo       *logo,
                                          const struct node *node);
 
-void              execute_group_begin   (struct logo       *logo,
+struct element   *execute_group_begin   (struct logo       *logo,
                                          const struct node *node);
 
-void              execute_group_end     (struct logo       *logo,
+struct element   *execute_group_end     (struct logo       *logo,
                                          const struct node *node);
 
-void              execute_use           (struct logo       *logo,
+struct element   *execute_use           (struct logo       *logo,
                                          const struct node *node);
 
-void              execute_move_to       (struct logo       *logo,
+struct element   *execute_move_to       (struct logo       *logo,
                                          const struct node *node);
 
-void              execute_rectangle     (struct logo       *logo,
+struct element   *execute_rectangle     (struct logo       *logo,
                                          const struct node *node);
 
 #endif

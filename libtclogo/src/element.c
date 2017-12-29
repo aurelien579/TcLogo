@@ -120,7 +120,7 @@ element_draw(const struct element *el,
     }
     
     if (el->type != ELEMENT_TYPE_USE) {
-        callback(el->linenumber);
+        //callback(el->linenumber);
     }
 }
 #endif

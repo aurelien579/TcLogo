@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 
 #include <tclogo/tclogo.h>
 #include <tclogo/node.h>
@@ -18,8 +19,11 @@ struct _TclogoApp
     GtkApplication   parent;
     TclogoAppWindow *window;
     struct logo     *logo;
+    struct node     *root;
     double           delay_secs;
     cairo_surface_t *surface;
+    double           x_offset;
+    double           y_offset;
 };
 
 G_DEFINE_TYPE(TclogoApp, tclogo_app, GTK_TYPE_APPLICATION);
@@ -28,14 +32,18 @@ static TclogoApp *_app;
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void
-draw_callback(unsigned int line)
+handler(const struct group   *current_group,
+        const struct node    *node,
+        const struct element *element)
 {
-    pthread_mutex_lock(&mutex);
-
-    tclogo_app_window_draw_surface(_app->window, _app->surface);
-    tclogo_app_window_highlight(_app->window, line);
+    if (strcmp(group_get_name(current_group), "root") == 0 && element) {
+        cairo_t *cr = cairo_create(_app->surface);
+        
+        element_draw(element, cr, _app->x_offset, _app->y_offset, NULL);
+        tclogo_app_window_draw_surface(_app->window, _app->surface);
+    }
     
-    pthread_mutex_unlock(&mutex);
+    tclogo_app_window_highlight(_app->window, node->line);
     
     struct timespec t;
     t.tv_sec = (long) _app->delay_secs;
@@ -46,18 +54,28 @@ draw_callback(unsigned int line)
     nanosleep(&t, NULL);
 }
 
-static void *
-draw_thread(void *_app)
+static void*
+test_thread(void *_app)
 {
     TclogoApp *app = (TclogoApp *) _app;
+    struct logo *logo = logo_new();
+    struct group *root;
     
-    struct group *root = logo_get_root(app->logo);
+    logo_execute(logo, app->root);
+    
+    root = logo_get_root(logo);
+    
+    app->x_offset = -group_min_x(root);
+    app->y_offset = -group_min_y(root);
+    
     app->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-                                              group_width(root),
-                                              group_height(root));
+                                              group_max_x(root),
+                                              group_max_y(root));
     
-    cairo_t *cr = cairo_create(app->surface);
-    logo_draw(app->logo, cr, draw_callback);
+    logo_free(logo);
+    logo = logo_new();
+    logo_set_handler(logo, handler);
+    logo_execute(logo, app->root);
     
     return NULL;
 }
@@ -65,19 +83,13 @@ draw_thread(void *_app)
 static void
 tclogo_app_execute(TclogoApp  *app,
                    const char *filename)
-{
-    struct node *root;
-    
-    app->logo = logo_new();
-        
-    if (parse_file(filename, &root) < 0) {
+{       
+    if (parse_file(filename, &app->root) < 0) {
         panic("parse_file()");
     }
     
-    logo_execute(app->logo, root);
-    
     pthread_t thread;
-    pthread_create(&thread, NULL, draw_thread, app);
+    pthread_create(&thread, NULL, test_thread, app);
 }
 
 static void
@@ -121,6 +133,7 @@ open_activated(GSimpleAction *action,
         }
         
         tclogo_app_window_set_text(_app->window, contents, size);
+        
         tclogo_app_execute(_app, filename);
         
         g_free(filename);

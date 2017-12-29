@@ -12,7 +12,7 @@
 
 struct function {
     enum node_type node_type;
-    void (*f) (struct logo*, const struct node*);
+    struct element * (*f) (struct logo*, const struct node*);
 };
 
 static struct function functions[] = {
