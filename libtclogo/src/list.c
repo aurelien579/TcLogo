@@ -67,10 +67,6 @@ list_free(struct list_head *head)
 
     while (cur) {
         tmp = cur->next;
-
-        if (cur->data)
-            free(cur->data);
-
         free(cur);
         cur = tmp;
     }

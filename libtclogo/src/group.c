@@ -13,6 +13,11 @@
 #define G_OPEN  "<g id=\"%s\">"
 #define G_CLOSE "</g>"
 
+struct group {
+    char               *name;
+    struct list_head   *elements;
+};
+
 struct group *
 group_new(const char *str)
 {
@@ -23,6 +28,18 @@ group_new(const char *str)
     strcpy(c->name, str);
 
     return c;
+}
+
+const char *
+group_get_name(const struct group *group)
+{
+    return group->name;
+}
+
+struct list_head *
+group_get_elements(const struct group *group)
+{
+    return group->elements;
 }
 
 void
@@ -104,7 +121,6 @@ group_height(const struct group *c)
 {
     return find_max_y(c->elements) - find_min_y(c->elements);
 }
-
 
 void
 group_free(struct group *c)

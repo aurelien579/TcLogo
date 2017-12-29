@@ -16,7 +16,7 @@ void
 svg_write(const struct logo *logo,
           const char        *out)
 {
-    struct group        *root = logo_get_root(logo);
+    struct group        *root   = logo_get_root(logo);
     struct list_head    *groups = logo_get_groups(logo);
 
     FILE *file = fopen(out, "w");
@@ -38,3 +38,4 @@ svg_write(const struct logo *logo,
 
     fclose(file);
 }
+

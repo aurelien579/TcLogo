@@ -45,7 +45,7 @@ logo_get_group(const struct logo *logo,
                const char        *name)
 {
     for_each(struct group, group, logo->groups, {
-        if (strcmp(group->name, name) == 0) {
+        if (strcmp(group_get_name(group), name) == 0) {
             return group;
         }
     });
@@ -59,7 +59,7 @@ logo_draw(const struct logo *logo,
           cairo_t           *cr,
           draw_callback_t    callback)
 {
-    for_each(struct element, el, logo->root->elements, {
+    for_each(struct element, el, group_get_elements(logo->root), {
         element_draw(el, cr, 0, 0, callback);
     });
 }
@@ -96,23 +96,16 @@ logo_new()
 
 void
 logo_free(struct logo *logo)
-{
-    struct group *g;
-    
-    for (struct list_head *cur = logo->groups; cur; cur = cur->next) {
-        g = (struct group *) cur->data;
-        group_free(g);
-        cur->data = NULL;
-    }
-    
-    if (logo->color) {
-        free(logo->color);
-    }
+{    
+    for_each(struct group, group, logo->groups, {
+        group_free(group);
+    });
     
     list_free(logo->groups);
 
     group_free(logo->root);
-
+    
+    free(logo->color);
     free(logo);
 }
 

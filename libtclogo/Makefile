@@ -43,7 +43,7 @@ src/logo.yy.o: src/logo.yy.c
 
 %.o: %.c src/logo.tab.o
 	@echo "Compiling : $<"
-	$(CC) $(CFLAGS) $< -c -o $@
+	@$(CC) $(CFLAGS) $< -c -o $@
 
 .PHONY: clean lib lib-cairo build-lib build-lib-cairo clean-objects
 

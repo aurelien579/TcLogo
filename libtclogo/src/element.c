@@ -38,8 +38,8 @@ struct element {
     double          height;
     
     union {
-        struct line_data    *line_data;
-        struct use_data     *use_data;
+        struct line_data    *line;
+        struct use_data     *use;
     };
 };
 
@@ -110,8 +110,10 @@ element_draw(const struct element *el,
         cairo_rectangle(cr, x + el->x, y + el->y, el->width, el->height);
         cairo_fill(cr);
         break;
-    case ELEMENT_TYPE_USE:
-        for_each(struct element, cur_el, el->use_data->group->elements, {
+    case ELEMENT_TYPE_USE:;
+        struct list_head *elements = group_get_elements(el->use->group);
+        
+        for_each(struct element, cur_el, elements, {
             element_draw(cur_el, cr, x + el->x, y + el->y, callback);
         });
         break;
@@ -135,13 +137,13 @@ element_to_svg(const struct element *el,
                 el->y,
                 el->x + el->width,
                 el->y + el->height,
-                el->line_data->color);
+                el->line->color);
         break;
     case ELEMENT_TYPE_RECT:
         fprintf(out, RECT_SVG, el->x, el->y, el->width, el->height);
         break;
     case ELEMENT_TYPE_USE:
-        fprintf(out, USE_SVG, el->x, el->y, el->use_data->group->name);
+        fprintf(out, USE_SVG, el->x, el->y, group_get_name(el->use->group));
         break;
     }
 }
@@ -193,17 +195,17 @@ line_new(double      x1,
          double      y2,
          const char *color)
 {
-    struct line_data *data;
+    struct line_data *line;
     struct element *el;
     size_t size;
     double x, y, w, h;
     
     size = strlen(color);
     
-    data = alloc(struct line_data);
+    line = alloc(struct line_data);
     
-    data->color = alloc_n(char, size + 1);    
-    strncpy(data->color, color, size);
+    line->color = alloc_n(char, size + 1);    
+    strcpy(line->color, color);
 
     x = min(x1, x2);
     y = min(y1, y2);
@@ -211,7 +213,7 @@ line_new(double      x1,
     h = max(y1, y2) - y;
     
     el = element_new(ELEMENT_TYPE_LINE, x, y, w, h);
-    el->line_data = data;
+    el->line = line;
     
     return el;
 }
@@ -230,18 +232,18 @@ group_use_new(const struct group    *group,
               double                 x,
               double                 y)
 {
-    struct use_data *data;
+    struct use_data *use;
     struct element *el;
     
-    data = alloc(struct use_data);
-    data->group = group;
+    use = alloc(struct use_data);
+    use->group = group;
     
     el = element_new(ELEMENT_TYPE_USE,
                      x,
                      y,
                      group_width(group),
                      group_height(group));
-    el->use_data = data;
+    el->use = use;
     
     return el;
 }
@@ -251,11 +253,11 @@ element_free(struct element *el)
 {
     switch (el->type) {
     case ELEMENT_TYPE_LINE:
-        free(el->line_data->color);
-        free(el->line_data);
+        free(el->line->color);
+        free(el->line);
         break;
     case ELEMENT_TYPE_USE:
-        free(el->use_data);
+        free(el->use);
         break;
     case ELEMENT_TYPE_RECT:
         break;
@@ -263,3 +265,4 @@ element_free(struct element *el)
     
     free(el);
 }
+
