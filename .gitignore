@@ -1,10 +1,14 @@
 *.svg
 libtclogo/lib
-libtclogo/include/logo.tab.h
+libtclogo/include/tclogo/logo.tab.h
 libtclogo/src/*.o
 libtclogo/src/logo.tab.h
 libtclogo/src/logo.tab.c
 libtclogo/src/logo.yy.c
+
+
+tclogo-gui/src/*.o
+tclogo-gui/tclogo
 
 tclogo/src/*.o
 tclogo/tclogo
