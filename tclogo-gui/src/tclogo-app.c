@@ -1,4 +1,5 @@
 #include <gtk/gtk.h>
+#include <glib/gprintf.h>
 
 #include <stdio.h>
 #include <time.h>
@@ -16,80 +17,159 @@
 
 struct _TclogoApp
 {
-    GtkApplication   parent;
-    TclogoAppWindow *window;
-    struct logo     *logo;
-    struct node     *root;
-    double           delay_secs;
-    cairo_surface_t *surface;
-    double           x_offset;
-    double           y_offset;
+    GtkApplication      parent;
+    gboolean            running;
+    GThread            *thread;
+    TclogoAppWindow    *window;
+    struct logo        *logo;
+    struct node        *root_node;
+    double              delay_secs;
+    cairo_surface_t    *surface;
+    double              x_offset;
+    double              y_offset;
 };
+
 
 G_DEFINE_TYPE(TclogoApp, tclogo_app, GTK_TYPE_APPLICATION);
 
-static TclogoApp *_app;
-static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+GMainContext *context;
+
+static TclogoApp *app_instance;
 
 static void
-handler(const struct group   *current_group,
-        const struct node    *node,
-        const struct element *element)
+tclogo_app_sleep(TclogoApp *app)
 {
-    if (strcmp(group_get_name(current_group), "root") == 0 && element) {
-        cairo_t *cr = cairo_create(_app->surface);
+    if (app->delay_secs > 0.0) {
+        struct timespec t;
+        t.tv_sec = (long) app->delay_secs;
         
-        element_draw(element, cr, _app->x_offset, _app->y_offset, NULL);
-        tclogo_app_window_draw_surface(_app->window, _app->surface);
+        long long milli_secs = ((long long) (app->delay_secs * 1000)) -
+                                            (t.tv_sec * 1000);
+        
+        t.tv_nsec = milli_secs * 1000 * 1000;
+        
+        nanosleep(&t, NULL);
     }
-    
-    tclogo_app_window_highlight(_app->window, node->line);
-    
-    struct timespec t;
-    t.tv_sec = (long) _app->delay_secs;
-    
-    long long milli_secs = ((long long) (_app->delay_secs * 1000)) - (t.tv_sec * 1000);
-    t.tv_nsec = milli_secs * 1000 * 1000;
-    
-    nanosleep(&t, NULL);
 }
 
-static void*
-test_thread(void *_app)
+static void
+tclogo_app_draw(TclogoApp            *app,
+                const struct element *el,
+                cairo_t              *cr,
+                double                x,
+                double                y)
 {
-    TclogoApp *app = (TclogoApp *) _app;
-    struct logo *logo = logo_new();
-    struct group *root;
+    if (!app->running) {
+        g_thread_exit(NULL);
+    }
     
-    logo_execute(logo, app->root);
+    struct list_head *children = element_get_children(el);
     
-    root = logo_get_root(logo);
+    element_draw(el, cr, x, y);
     
-    app->x_offset = -group_min_x(root);
-    app->y_offset = -group_min_y(root);
+    for_each(struct element, cur_el, children, {
+        tclogo_app_draw(app, cur_el, cr, x + element_get_x(el), y + element_get_y(el));
+    });
+    
+    if (!app->running) {
+        g_thread_exit(NULL);
+    }
+    gtk_widget_queue_draw(GTK_WIDGET(app->window));
+    tclogo_app_sleep(app);
+}
+
+static void
+step_handler(const struct group   *current_group,
+             const struct node    *node,
+             const struct element *el)
+{
+    if (!app_instance->running) {
+        g_thread_exit(NULL);
+    }
+    
+    tclogo_app_window_highlight(app_instance->window, node->line);
+
+    if (strcmp(group_get_name(current_group), "root") == 0 && el) {
+        cairo_t *cr = cairo_create(app_instance->surface);
+        
+        tclogo_app_draw(app_instance,
+                        el,
+                        cr,
+                        app_instance->x_offset,
+                        app_instance->y_offset);
+        
+        cairo_destroy(cr);
+    }
+}
+
+void
+tclogo_app_stop_drawing(TclogoApp *app)
+{
+    app->running = FALSE;
+    
+    if (app->thread) {
+        g_thread_join(app->thread);
+        g_thread_unref(app->thread);
+        app->thread = NULL;
+        
+        if (app->logo) {
+            logo_free(app->logo);
+            app->logo = NULL;
+        }
+        
+        if (app->surface) {
+            cairo_surface_destroy(app->surface);
+            app->surface = NULL;
+        }
+        
+        if (app->root_node) {
+            node_free(app->root_node);
+            app->root_node = NULL;
+        }
+    }
+}
+
+static gpointer
+logo_thread(gpointer _app)
+{
+    TclogoApp       *app = TCLOGO_APP(_app);
+    struct group    *root_group;
+    
+    app->running = TRUE;    
+    app->logo = logo_new();
+    
+    tclogo_app_window_enable_highlight(app->window);
+    
+    logo_execute(app->logo, app->root_node);
+    root_group = logo_get_root(app->logo);
+    
+    app->x_offset = -group_min_x(root_group);
+    app->y_offset = -group_min_y(root_group);
     
     app->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-                                              group_max_x(root),
-                                              group_max_y(root));
+                                              group_max_x(root_group),
+                                              group_max_y(root_group));
     
-    logo_free(logo);
-    logo = logo_new();
-    logo_set_handler(logo, handler);
-    logo_execute(logo, app->root);
+    tclogo_app_window_set_surface(app->window, app->surface);
+    
+    logo_free(app->logo);
+    
+    app->logo = logo_new();
+    logo_set_handler(app->logo, step_handler);
+    logo_execute(app->logo, app->root_node);
+    
+    logo_free(app->logo);
+    app->logo = NULL;
+    
+    node_free(app->root_node);
+    app->root_node = NULL;
+    
+    cairo_surface_destroy(app->surface);
+    app->surface = NULL;
+    
+    tclogo_app_window_disable_highlight(app->window);
     
     return NULL;
-}
-
-static void
-tclogo_app_execute(TclogoApp  *app,
-                   const char *filename)
-{       
-    if (parse_file(filename, &app->root) < 0) {
-        panic("parse_file()");
-    }
-    
-    pthread_t thread;
-    pthread_create(&thread, NULL, test_thread, app);
 }
 
 static void
@@ -105,7 +185,6 @@ open_activated(GSimpleAction *action,
                GVariant      *param,
                gpointer       app)
 {
-    
     GtkWidget *dialog;
     gint res;
 
@@ -121,24 +200,28 @@ open_activated(GSimpleAction *action,
     res = gtk_dialog_run(GTK_DIALOG(dialog));
     
     if (res == GTK_RESPONSE_ACCEPT) {
-        char *filename;
+        gchar          *filename, *contents;
+        gsize           size;
         GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
-        filename = gtk_file_chooser_get_filename(chooser);
         
-        gchar *contents;
-        gsize size;
+        filename = gtk_file_chooser_get_filename(chooser);        
         
         if (!g_file_get_contents(filename, &contents, &size, NULL)) {
             panic("g_file_get_contents()");
         }
         
-        tclogo_app_window_set_text(_app->window, contents, size);
+        tclogo_app_window_set_text(TCLOGO_APP(app)->window, contents, size);
         
-        tclogo_app_execute(_app, filename);
+        if (parse_file(filename, &TCLOGO_APP(app)->root_node) < 0) {
+            panic("parse_file()");
+        }
         
+        g_free(contents);
         g_free(filename);
+        
+        TCLOGO_APP(app)->thread = g_thread_new("logo_thread", logo_thread, app);
     }
-
+    
     gtk_widget_destroy(dialog);
 }
 
@@ -159,13 +242,17 @@ tclogo_app_activate(GApplication *_app_)
     TclogoApp *app = TCLOGO_APP(_app_);
     TclogoAppWindow *win;
     
-    _app = app;
+    app_instance = app;
     
     win = tclogo_app_window_new(app);
     
     app->window = win;
     app->logo = NULL;
+    app->root_node = NULL;
+    app->surface = NULL;
+    app->thread = NULL;
     app->delay_secs = 1;
+    app->running = FALSE;
     
     tclogo_app_window_set_app(app->window, app);
     
@@ -179,6 +266,8 @@ tclogo_app_startup(GApplication *app)
     GMenuModel *app_menu;
         
     G_APPLICATION_CLASS(tclogo_app_parent_class)->startup(app);
+        
+    context = g_main_context_default();
     
     g_action_map_add_action_entries(G_ACTION_MAP(app), app_entries,
                                     G_N_ELEMENTS(app_entries), app);
@@ -190,17 +279,29 @@ tclogo_app_startup(GApplication *app)
 }
 
 static void
+tclogo_app_shutdown(GApplication *app)
+{
+    tclogo_app_stop_drawing(TCLOGO_APP(app));
+}
+
+static void
 tclogo_app_class_init(TclogoAppClass *class)
 {
     G_APPLICATION_CLASS(class)->activate = tclogo_app_activate;
     G_APPLICATION_CLASS(class)->startup = tclogo_app_startup;
+    G_APPLICATION_CLASS(class)->shutdown = tclogo_app_shutdown;
+}
+
+TclogoAppWindow *
+tclogo_app_get_window(TclogoApp *app)
+{
+    return app->window;
 }
 
 void
 tclogo_app_set_delay(TclogoApp *app,
                      double secs)
 {
-    printf("New delay : %f\n", secs);
     app->delay_secs = secs;
 }
 

@@ -96,8 +96,7 @@ void
 element_draw(const struct element *el,
              cairo_t              *cr,
              int                   x,
-             int                   y,
-             draw_callback_t       callback)
+             int                   y)
 {
     switch (el->type)
     {
@@ -110,17 +109,8 @@ element_draw(const struct element *el,
         cairo_rectangle(cr, x + el->x, y + el->y, el->width, el->height);
         cairo_fill(cr);
         break;
-    case ELEMENT_TYPE_USE:;
-        struct list_head *elements = group_get_elements(el->use->group);
-        
-        for_each(struct element, cur_el, elements, {
-            element_draw(cur_el, cr, x + el->x, y + el->y, callback);
-        });
+    case ELEMENT_TYPE_USE:
         break;
-    }
-    
-    if (el->type != ELEMENT_TYPE_USE) {
-        //callback(el->linenumber);
     }
 }
 #endif
@@ -168,6 +158,28 @@ unsigned int
 element_get_linenumber(const struct element *el)
 {
     return el->linenumber;
+}
+
+double
+element_get_x(const struct element *el)
+{
+    return el->x;
+}
+
+double
+element_get_y(const struct element *el)
+{
+    return el->y;
+}
+
+struct list_head *
+element_get_children(const struct element *el)
+{
+    if (el->type == ELEMENT_TYPE_USE) {
+        return group_get_elements(el->use->group);
+    } else {
+        return (struct list_head *) NULL;
+    }
 }
 
 static struct element *

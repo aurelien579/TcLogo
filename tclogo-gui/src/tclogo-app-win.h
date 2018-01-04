@@ -7,13 +7,9 @@
 
 #include "tclogo-app.h"
 
-#define TCLOGO_APP_WINDOW_TYPE (tclogo_app_window_get_type())
-G_DECLARE_FINAL_TYPE(TclogoAppWindow, tclogo_app_window, TCLOGO,
-                     APP_WINDOW, GtkApplicationWindow)
-
 TclogoAppWindow *tclogo_app_window_new          (TclogoApp *app);
                                                  
-void             tclogo_app_window_draw_surface (TclogoAppWindow *win,
+void             tclogo_app_window_set_surface  (TclogoAppWindow *win,
                                                  cairo_surface_t *surface);
 
 void             tclogo_app_window_set_app      (TclogoAppWindow *win,
@@ -26,4 +22,6 @@ void             tclogo_app_window_set_text     (TclogoAppWindow *win,
 void             tclogo_app_window_highlight    (TclogoAppWindow *win,
                                                  unsigned int     line);
 
+void             tclogo_app_window_enable_highlight     (TclogoAppWindow *win);
+void             tclogo_app_window_disable_highlight    (TclogoAppWindow *win);
 #endif

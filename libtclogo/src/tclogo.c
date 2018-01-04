@@ -55,18 +55,6 @@ logo_get_group(const struct logo *logo,
     return NULL;
 }
 
-#ifdef CAIRO
-void
-logo_draw(const struct logo *logo,
-          cairo_t           *cr,
-          draw_callback_t    callback)
-{
-    for_each(struct element, el, group_get_elements(logo->root), {
-        element_draw(el, cr, 0, 0, callback);
-    });
-}
-#endif
-
 static void
 logo_do_step(struct logo       *logo,
              const struct node *node)
@@ -85,8 +73,6 @@ logo_execute(struct logo        *logo,
     for (const struct node *cur = program; cur; cur = cur->next) {
         logo_do_step(logo, cur);
     }
-    
-    //group_relocate_elements(logo->root);
 }
 
 struct logo *

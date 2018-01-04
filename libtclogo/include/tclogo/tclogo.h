@@ -14,8 +14,6 @@ typedef void (*handler_t)      (const struct group   *current_group,
                                 const struct node    *node,
                                 const struct element *element);
 
-typedef void (*draw_callback_t) (unsigned int);
-
 struct logo      *logo_new              ();
 void              logo_free             (struct logo *logo);
 
@@ -28,12 +26,6 @@ struct group     *logo_get_group        (const struct logo *logo,
 struct list_head *logo_get_groups       (const struct logo *logo);
 
 struct group     *logo_get_root         (const struct logo *logo);
-
-#ifdef CAIRO
-void              logo_draw             (const struct logo *logo,
-                                         cairo_t           *cr,
-                                         draw_callback_t    callback);
-#endif
 
 void              logo_execute          (struct logo       *logo,
                                          const struct node *program);

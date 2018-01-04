@@ -27,6 +27,8 @@ struct element *group_use_new   (const struct group *grp,
                                  double              x,
                                  double              y);
 
+struct list_head *element_get_children  (const struct element *el);
+
 void            element_free    (struct element *el);
 
 void            element_to_svg  (const struct element *el,
@@ -40,14 +42,16 @@ void            element_move    (struct element *el,
 void            element_draw    (const struct element *el,
                                  cairo_t              *cr,
                                  int                   x,
-                                 int                   y,
-                                 draw_callback_t       callback);
+                                 int                   y);
 #endif                               
 
 void            element_set_linenumber (struct element *el,
                                         unsigned int    linenumber);
 
 unsigned int    element_get_linenumber (const struct element *el);
+
+double          element_get_x           (const struct element *el);
+double          element_get_y           (const struct element *el);
 
 double          find_max_y      (const struct list_head *elements);
 
