@@ -17,7 +17,9 @@ enum node_type {
     NODE_GROUP_END,
     NODE_USE,
     NODE_MOVE_TO,
-    NODE_RECTANGLE
+    NODE_RECTANGLE,
+    NODE_COLOR_ID,
+    NODE_COLOR_ID_RAND
 };
 
 enum arg_type {

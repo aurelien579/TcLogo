@@ -9,7 +9,7 @@ unsigned int _current_line_ = 0;
 %}
 
 %%
-[0-9]+          yylval.int_type = atoi(yytext); return NUMBER;
+[0-9]+          yylval.int_type = atoi(yytext); return INT_IMEDIATE;
 
 "REPEAT"        return REPEAT;
 "LEFT"          return LEFT;
@@ -23,7 +23,8 @@ unsigned int _current_line_ = 0;
 "USE"           return USE;
 "MOVE_TO"       return MOVE_TO;
 "RECTANGLE"     return RECTANGLE;
-
+"RAND"          return RAND;
+"COLOR_ID"      return COLOR_ID;
 
 ([a-z]|[A-Z])+ {
     strncpy(yylval.str_type, yytext, STR_LENGTH - 1);

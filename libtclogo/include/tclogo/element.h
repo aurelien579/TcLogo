@@ -12,16 +12,17 @@
 struct element;
 struct group;
 
-struct element *line_new        (double      x1,
-                                 double      y1,
-                                 double      x2,
-                                 double      y2,
-                                 const char *color);
+struct element *line_new        (double              x1,
+                                 double              y1,
+                                 double              x2,
+                                 double              y2,
+                                 const struct color *c);
 
-struct element *rect_new        (double x,
-                                 double y,
-                                 double width,
-                                 double height);
+struct element *rect_new        (double              x,
+                                 double              y,
+                                 double              width,
+                                 double              height,
+                                 const struct color *c);
 
 struct element *group_use_new   (const struct group *grp,
                                  double              x,

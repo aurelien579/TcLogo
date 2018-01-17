@@ -11,7 +11,7 @@ OBJS 	= $(patsubst %.c, %.o, $(wildcard src/*.c)) src/resources.o
 all: $(TARGET)
 
 $(TARGET): $(OBJS) ../libtclogo/lib/libtclogo-cairo.a
-	@$(CC) $^ -o $@ $(LIBS)
+	@$(CC) $^ -pg -o $@ $(LIBS)
 
 src/resources.c: tclogoapp.gresource.xml ui/*.ui
 	@echo "Compiling : $<"

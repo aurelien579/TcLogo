@@ -10,6 +10,11 @@ struct group;
 struct node;
 struct logo;
 
+struct color {
+    char    name[20];
+    int     rgb;
+};
+
 typedef void (*handler_t)      (const struct group   *current_group,
                                 const struct node    *node,
                                 const struct element *element);
@@ -65,5 +70,13 @@ struct element   *execute_move_to       (struct logo       *logo,
 
 struct element   *execute_rectangle     (struct logo       *logo,
                                          const struct node *node);
+                                         
+
+struct element   *execute_color_id      (struct logo       *logo,
+                                         const struct node *node);
+
+struct element   *execute_color_id_rand (struct logo       *logo,
+                                         const struct node *node);
+
 
 #endif

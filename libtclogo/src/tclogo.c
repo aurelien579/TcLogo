@@ -13,6 +13,26 @@
 #define DEFAULT_COLOR   "black"
 #define PI              3.14159265
 
+static struct color logo_colors[] =
+{
+    { "black",      0x000000 },
+    { "blue",       0x0000CC },
+    { "green",      0x00CC00 },
+    { "cyan",       0x00CCCC },
+    { "red",        0xCC0000 },
+    { "magenta",    0xCC00CC },
+    { "yellow",     0xFFFF00 },
+    { "brown",      0xCC6600 },
+    { "dark_green", 0x006600 },
+    { "aqua",       0x006666 },
+    { "salmon",     0xFFA07A },
+    { "purple",     0x6600CC },
+    { "orange",     0xFF8000 },
+    { "gray",       0x808080 }
+};
+
+static int logo_colors_count = sizeof(logo_colors) / sizeof(struct color);
+
 struct logo {
     double              saved_x;
     double              saved_y;
@@ -20,26 +40,35 @@ struct logo {
     double              x;                  /* Current x */
     double              y;                  /* Current y */
     double              angle;              /* Current angle in radians */
-    char               *color;              /* Current color */
+    const struct color *color;              /* Current color */
     struct group       *current_group;
     struct group       *root;
     struct list_head   *groups;
-    
+
     handler_t           handler;
 };
 
-static void
-logo_set_color(struct logo *logo,
-               const char *color)
+static struct color *
+find_color(const char *name)
 {
-    int size = strlen(color);
-    
-    if (logo->color) {
-        free(logo->color);
+    for (int i = 0; i < logo_colors_count; i++) {
+        if (strcmp(logo_colors[i].name, name) == 0) {
+            return &logo_colors[i];
+        }
     }
     
-    logo->color = alloc_n(char, size + 1);
-    strncpy(logo->color, color, size);
+    return NULL;
+}
+
+static void
+logo_set_color(struct logo *logo,
+               const char  *name)
+{
+    const struct color *c = find_color(name);
+    
+    if (c) {
+        logo->color = c;
+    }
 }
 
 struct group *
@@ -60,7 +89,7 @@ logo_do_step(struct logo       *logo,
              const struct node *node)
 {
     struct element *el = node->execute(logo, node);
- 
+
     if (logo->handler) {
         logo->handler(logo->current_group, node, el);
     }
@@ -88,7 +117,7 @@ logo_new()
     logo->current_group = logo->root;
     logo->color         = NULL;
     logo->handler       = NULL;
-    
+
     logo_set_color(logo, DEFAULT_COLOR);
 
     return logo;
@@ -103,16 +132,15 @@ logo_set_handler(struct logo *logo,
 
 void
 logo_free(struct logo *logo)
-{    
+{
     for_each(struct group, group, logo->groups, {
         group_free(group);
     });
-    
+
     list_free(logo->groups);
 
     group_free(logo->root);
-    
-    free(logo->color);
+
     free(logo);
 }
 
@@ -140,7 +168,23 @@ execute_group_begin(struct logo         *logo,
     logo->x = 0;
     logo->y = 0;
     logo->current_group = group_new(node_get_str(node, 0));
-    
+
+    return NULL;
+}
+
+struct element *
+execute_color_id(struct logo         *logo,
+                 const struct node   *node)
+{
+    logo->color = &logo_colors[node_get_int(node, 0)];
+    return NULL;
+}
+
+struct element *
+execute_color_id_rand(struct logo         *logo,
+                 const struct node   *node)
+{
+    logo->color = &logo_colors[rand() % node_get_int(node, 0)];
     return NULL;
 }
 
@@ -151,11 +195,11 @@ execute_group_end(struct logo       *logo,
     logo->x = logo->saved_x;
     logo->y = logo->saved_y;
     logo->angle = logo->saved_angle;
-    
+
     list_add(&logo->groups, logo->current_group);
     group_relocate_elements(logo->current_group);
     logo->current_group = logo->root;
-    
+
     return NULL;
 }
 
@@ -165,11 +209,11 @@ execute_use(struct logo        *logo,
 {
     struct group *src  = logo_get_group(logo, node_get_str(node, 0));
     assert(src);
-    
+
     struct element *use = group_use_new(src, logo->x, logo->y);
-    
+
     group_add(logo->root, use);
-    
+
     return use;
 }
 
@@ -179,11 +223,12 @@ execute_rectangle(struct logo        *logo,
 {
     struct element *rect = rect_new(logo->x, logo->y,
                                     node_get_int(node, 0),
-                                    node_get_int(node, 1));
-    
+                                    node_get_int(node, 1),
+                                    logo->color);
+
     element_set_linenumber(rect, node->line);
     group_add(logo->current_group, rect);
-    
+
     return rect;
 }
 
@@ -193,7 +238,7 @@ execute_move_to(struct logo        *logo,
 {
     logo->x = node_get_int(node, 0);
     logo->y = node_get_int(node, 1);
-    
+
     return NULL;
 }
 
@@ -202,7 +247,7 @@ execute_set_angle(struct logo       *logo,
                   const struct node *node)
 {
     logo->angle = node_get_int(node, 0);
-    
+
     return NULL;
 }
 
@@ -212,7 +257,7 @@ execute_move(struct logo       *logo,
 {
     logo->x += node_get_int(node, 0) * cos(logo->angle);
     logo->y += node_get_int(node, 0) * sin(logo->angle);
-    
+
     return NULL;
 }
 
@@ -224,7 +269,7 @@ execute_forward(struct logo        *logo,
 
     new_x = logo->x + node_get_int(node, 0) * cos(logo->angle);
     new_y = logo->y + node_get_int(node, 0) * sin(logo->angle);
-
+        
     struct element *line = line_new(logo->x, logo->y,
                                     new_x, new_y, logo->color);
 
@@ -234,7 +279,7 @@ execute_forward(struct logo        *logo,
 
     logo->x = new_x;
     logo->y = new_y;
-    
+
     return line;
 }
 
@@ -243,7 +288,7 @@ execute_left(struct logo       *logo,
              const struct node *node)
 {
     logo->angle -= ((double) node_get_int(node, 0)) * (PI/180.0);
-    
+
     return NULL;
 }
 
@@ -252,7 +297,7 @@ execute_right(struct logo       *logo,
               const struct node *node)
 {
     logo->angle += ((double) node_get_int(node, 0)) * (PI/180.0);
-    
+
     return NULL;
 }
 
@@ -271,7 +316,7 @@ execute_repeat(struct logo       *logo,
             cur = cur->next;
         }
     }
-    
+
     return NULL;
 }
 
@@ -280,6 +325,6 @@ execute_color(struct logo        *logo,
               const struct node  *node)
 {
     logo_set_color(logo, node_get_str(node, 0));
-    
+
     return NULL;
 }

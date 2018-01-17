@@ -12,8 +12,8 @@
 #include <float.h>
 
 #define USE_SVG  "<use x=\"%f\" y=\"%f\" href=\"#%s\"/>\n"
-#define RECT_SVG "<rect x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\"/>\n"
-#define LINE_SVG "<line x1=\"%f\" y1=\"%f\" x2=\"%f\" y2=\"%f\" stroke=\"%s\"/>\n"
+#define RECT_SVG "<rect x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\"/ stroke=\"#%x\"/>\n"
+#define LINE_SVG "<line x1=\"%f\" y1=\"%f\" x2=\"%f\" y2=\"%f\" stroke=\"#%x\"/>\n"
 
 enum el_type {
     ELEMENT_TYPE_LINE,
@@ -21,26 +21,19 @@ enum el_type {
     ELEMENT_TYPE_RECT
 };
 
-struct line_data {
-    char *color;
-};
-
 struct use_data {
     const struct group *group;
 };
 
 struct element {
-    enum el_type    type;
-    unsigned int    linenumber;
-    double          x;
-    double          y;
-    double          width;
-    double          height;
-    
-    union {
-        struct line_data    *line;
-        struct use_data     *use;
-    };
+    enum el_type         type;
+    unsigned int         linenumber;
+    double               x;
+    double               y;
+    double               width;
+    double               height;
+    const struct color  *color;
+    struct use_data     *use;
 };
 
 double
@@ -50,6 +43,7 @@ find_min_x(const struct list_head *elements)
 
     for_each(struct element, el, elements, {
         min_x = min(min_x, el->x);
+        min_x = min(min_x, el->x + el->width);
     });
 
     return min_x;
@@ -62,6 +56,7 @@ find_min_y(const struct list_head *elements)
 
     for_each(struct element, el, elements, {
         min_y = min(min_y, el->y);
+        min_y = min(min_y, el->y + el->height);
     });
 
     return min_y;
@@ -74,6 +69,7 @@ find_max_x(const struct list_head *elements)
 
     for_each(struct element, el, elements, {
         max_x = max(max_x, el->x + el->width);
+        max_x = max(max_x, el->x);
     });
 
     return max_x;
@@ -86,6 +82,7 @@ find_max_y(const struct list_head *elements)
 
     for_each(struct element, el, elements, {
         max_y = max(max_y, el->y + el->height);
+        max_y = max(max_y, el->y);
     });
 
     return max_y;
@@ -98,6 +95,11 @@ element_draw(const struct element *el,
              int                   x,
              int                   y)
 {
+    if (el->color) {
+        int rgb = el->color->rgb;
+        cairo_set_source_rgb(cr, (rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF);
+    }
+    
     switch (el->type)
     {
     case ELEMENT_TYPE_LINE:
@@ -118,7 +120,7 @@ element_draw(const struct element *el,
 void
 element_to_svg(const struct element *el,
                FILE                 *out)
-{
+{   
     switch (el->type) {
     case ELEMENT_TYPE_LINE:
         fprintf(out,
@@ -127,10 +129,10 @@ element_to_svg(const struct element *el,
                 el->y,
                 el->x + el->width,
                 el->y + el->height,
-                el->line->color);
+                el->color->rgb);
         break;
     case ELEMENT_TYPE_RECT:
-        fprintf(out, RECT_SVG, el->x, el->y, el->width, el->height);
+        fprintf(out, RECT_SVG, el->x, el->y, el->width, el->height, el->color->rgb);
         break;
     case ELEMENT_TYPE_USE:
         fprintf(out, USE_SVG, el->x, el->y, group_get_name(el->use->group));
@@ -183,11 +185,12 @@ element_get_children(const struct element *el)
 }
 
 static struct element *
-element_new(enum el_type type,
-            double       x,
-            double       y,
-            double       w,
-            double       h)
+element_new(enum el_type        type,
+            double              x,
+            double              y,
+            double              w,
+            double              h,
+            const struct color *c)
 {
     struct element *el = alloc(struct element);
     
@@ -195,48 +198,41 @@ element_new(enum el_type type,
     el->x       = x;
     el->y       = y;
     el->width   = w;
-    el->height  = h;
-
+    el->height  = h;    
+    el->color   = c;
+    el->use     = NULL;
+    
     return el;
 }
 
 struct element *
-line_new(double      x1,
-         double      y1, 
-         double      x2,
-         double      y2,
-         const char *color)
+line_new(double              x1,
+         double              y1, 
+         double              x2,
+         double              y2,
+         const struct color *color)
 {
-    struct line_data *line;
     struct element *el;
-    size_t size;
     double x, y, w, h;
     
-    size = strlen(color);
+    x = x1;
+    y = y1;
+    w = x2 - x1;
+    h = y2 - y1;
     
-    line = alloc(struct line_data);
-    
-    line->color = alloc_n(char, size + 1);    
-    strcpy(line->color, color);
-
-    x = min(x1, x2);
-    y = min(y1, y2);
-    w = max(x1, x2) - x;
-    h = max(y1, y2) - y;
-    
-    el = element_new(ELEMENT_TYPE_LINE, x, y, w, h);
-    el->line = line;
+    el = element_new(ELEMENT_TYPE_LINE, x, y, w, h, color);
     
     return el;
 }
 
 struct element *
-rect_new(double x,
-         double y,
-         double width,
-         double height)
+rect_new(double              x,
+         double              y,
+         double              width,
+         double              height,
+         const struct color *color)
 {
-    return element_new(ELEMENT_TYPE_RECT, x, y, width, height);
+    return element_new(ELEMENT_TYPE_RECT, x, y, width, height, color);
 }
 
 struct element *
@@ -254,7 +250,9 @@ group_use_new(const struct group    *group,
                      x,
                      y,
                      group_width(group),
-                     group_height(group));
+                     group_height(group),
+                     NULL);
+
     el->use = use;
     
     return el;
@@ -263,16 +261,8 @@ group_use_new(const struct group    *group,
 void
 element_free(struct element *el)
 {
-    switch (el->type) {
-    case ELEMENT_TYPE_LINE:
-        free(el->line->color);
-        free(el->line);
-        break;
-    case ELEMENT_TYPE_USE:
+    if (el->use) {
         free(el->use);
-        break;
-    case ELEMENT_TYPE_RECT:
-        break;
     }
     
     free(el);

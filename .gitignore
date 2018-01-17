@@ -14,3 +14,4 @@ tclogo/src/*.o
 tclogo/tclogo
 
 tests/tests
+TcLogo.geany

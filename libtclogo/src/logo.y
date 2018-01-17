@@ -24,8 +24,8 @@ extern unsigned int _current_line_;
 
 %parse-param { struct node **root }
 
-%token NUMBER FORWARD LEFT RIGHT REPEAT STR COLOR STR_DELEMITER
-%token MOVE SET_ANGLE GROUP_BEGIN GROUP_END USE MOVE_TO RECTANGLE
+%token INT_IMEDIATE FORWARD LEFT RIGHT REPEAT STR COLOR STR_DELEMITER
+%token MOVE SET_ANGLE GROUP_BEGIN GROUP_END USE MOVE_TO RECTANGLE RAND COLOR_ID
 
 %union {
     struct node *node_type;
@@ -34,7 +34,7 @@ extern unsigned int _current_line_;
 };
 
 %type <str_type> STR
-%type <int_type> NUMBER
+%type <int_type> INT_IMEDIATE INT
 %type <node_type> PROG INST
 
 %%
@@ -50,36 +50,36 @@ PROG: INST {
     $$ = $1;
 }
 
-INST: FORWARD NUMBER {
+INST: FORWARD INT {
     $$ = node_new(NODE_FORWARD, 1, _current_line_);
     node_set_int($$, 0, $2);
-} | LEFT NUMBER {
+} | LEFT INT {
     $$ = node_new(NODE_LEFT, 1, _current_line_);
     node_set_int($$, 0, $2);
-} | RIGHT NUMBER {
+} | RIGHT INT {
     $$ = node_new(NODE_RIGHT, 1, _current_line_);
     node_set_int($$, 0, $2);
-} | REPEAT NUMBER '[' PROG ']' {
+} | REPEAT INT '[' PROG ']' {
     $$ = node_new(NODE_REPEAT, 2, _current_line_);
     node_set_int($$, 0, $2);
     node_set_subnode($$, 1, $4);
 } | COLOR STR_DELEMITER STR STR_DELEMITER {
     $$ = node_new(NODE_COLOR, 1, _current_line_);
     node_set_str($$, 0, $3);
-} | MOVE NUMBER {
+} | MOVE INT {
     $$ = node_new(NODE_MOVE, 1, _current_line_);
     node_set_int($$, 0, $2);
-} | SET_ANGLE NUMBER {
+} | SET_ANGLE INT {
     $$ = node_new(NODE_SET_ANGLE, 1, _current_line_);
     node_set_int($$, 0, $2);
 } | USE STR {
     $$ = node_new(NODE_USE, 1,_current_line_);
     node_set_str($$, 0, $2);
-} | MOVE_TO NUMBER NUMBER {
+} | MOVE_TO INT INT {
     $$ = node_new(NODE_MOVE_TO, 2, _current_line_);
     node_set_int($$, 0, $2);
     node_set_int($$, 1, $3);
-} | RECTANGLE NUMBER NUMBER {
+} | RECTANGLE INT INT {
     $$ = node_new(NODE_RECTANGLE, 2, _current_line_);
     node_set_int($$, 0, $2);
     node_set_int($$, 1, $3);
@@ -88,6 +88,19 @@ INST: FORWARD NUMBER {
     node_set_str($$, 0, $2);
 } | GROUP_END {
     $$ = node_new(NODE_GROUP_END, 0, _current_line_);
+} | COLOR_ID INT {
+    $$ = node_new(NODE_COLOR_ID, 1, _current_line_);
+    node_set_int($$, 0, $2);
+} | COLOR_ID RAND INT_IMEDIATE {
+    $$ = node_new(NODE_COLOR_ID_RAND, 1, _current_line_);
+    node_set_int($$, 0, $3);
+}
+
+INT: RAND INT_IMEDIATE {
+    $$ = rand() % $2;
+    printf("rand %d\n", $$);
+} | INT_IMEDIATE {
+    $$ = $1;
 }
 
 %%

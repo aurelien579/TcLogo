@@ -27,7 +27,9 @@ static struct function functions[] = {
     { NODE_GROUP_END, execute_group_end },
     { NODE_USE, execute_use },
     { NODE_MOVE_TO, execute_move_to },
-    { NODE_RECTANGLE, execute_rectangle }
+    { NODE_RECTANGLE, execute_rectangle },
+    { NODE_COLOR_ID, execute_color_id },
+    { NODE_COLOR_ID_RAND, execute_color_id_rand }
 };
 
 static int functions_count = sizeof(functions) / sizeof(struct function);
