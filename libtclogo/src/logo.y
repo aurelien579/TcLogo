@@ -96,10 +96,7 @@ INST: FORWARD INT {
     node_set_int($$, 0, $3);
 }
 
-INT: RAND INT_IMEDIATE {
-    $$ = rand() % $2;
-    printf("rand %d\n", $$);
-} | INT_IMEDIATE {
+INT: INT_IMEDIATE {
     $$ = $1;
 }
 

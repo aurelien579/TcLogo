@@ -3,9 +3,12 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <sys/types.h>
+#include <stdlib.h>
 
 #include <tclogo/constants.h>
+#include <tclogo/group.h>
 #include <tclogo/logo.tab.h>
 #include <tclogo/tclogo.h>
 #include <tclogo/svg.h>
@@ -30,11 +33,12 @@ main(int    argc,
         }
     }
     
+    srand(time(NULL));
+    
     int tempfd = dup(STDIN_FILENO);
     close(STDIN_FILENO);
     open(in, O_RDONLY);
     yyparse(&root);
-    close(STDIN_FILENO);
     dup2(tempfd, STDIN_FILENO);
     close(tempfd);
     
